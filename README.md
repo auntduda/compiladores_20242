@@ -4,6 +4,6 @@ Repositório de armazenamento do compilador que será elaborado para a disciplin
 
 ## Como testar o analisador léxico?
 
-Para testar o lexico.l, rode:
+Para testar o `lexico.l`, rode:
 
 ``flex lexico.l && cc lex.yy.c && ./a.out``
