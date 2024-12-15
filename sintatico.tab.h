@@ -69,7 +69,8 @@ extern int yydebug;
     WRITE = 270,                   /* WRITE  */
     ASSGNOP = 271,                 /* ASSGNOP  */
     NUMBER = 272,                  /* NUMBER  */
-    IDENTIFIER = 273               /* IDENTIFIER  */
+    IDENTIFIER = 273,              /* IDENTIFIER  */
+    UMINUS = 274                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

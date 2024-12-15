@@ -16,6 +16,7 @@ extern int yylineno;
 %left '-' '+'
 %left '*' '/'
 %right '^'
+%left UMINUS
 
 %define parse.error detailed
 
@@ -40,7 +41,6 @@ command: SKIP
         | WRITE exp
         | IDENTIFIER ASSGNOP exp
         | IF exp THEN commands ELSE commands FI
-        | IF exp THEN commands FI
         | WHILE exp DO commands END
 ;
 
@@ -54,6 +54,7 @@ exp: NUMBER
         | exp '*' exp
         | exp '/' exp
         | exp '^' exp
+        | '-' exp %prec UMINUS
         | '(' exp ')'
 ;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
     ++argv; --argc;
     yyin = fopen(argv[0], "r");
     //yydebug = 1;
-    printf("Analisando arquivo %s\n", argv[0]);
+    printf("Analisando arquivo '%s'...\n", argv[0]);
     yyparse();
     return 0;
 }
