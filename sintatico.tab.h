@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.7.4.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -54,30 +54,42 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    LET = 258,                     /* LET  */
-    INTEGER = 259,                 /* INTEGER  */
-    IN = 260,                      /* IN  */
-    SKIP = 261,                    /* SKIP  */
-    IF = 262,                      /* IF  */
-    THEN = 263,                    /* THEN  */
-    ELSE = 264,                    /* ELSE  */
-    FI = 265,                      /* FI  */
-    END = 266,                     /* END  */
-    WHILE = 267,                   /* WHILE  */
-    DO = 268,                      /* DO  */
-    READ = 269,                    /* READ  */
-    WRITE = 270,                   /* WRITE  */
-    ASSGNOP = 271,                 /* ASSGNOP  */
-    NUMBER = 272,                  /* NUMBER  */
-    IDENTIFIER = 273,              /* IDENTIFIER  */
-    UMINUS = 274                   /* UMINUS  */
+    IDENTIFIER = 258,              /* IDENTIFIER  */
+    NUMBER = 259,                  /* NUMBER  */
+    IFX = 260,                     /* IFX  */
+    LET = 261,                     /* LET  */
+    INTEGER = 262,                 /* INTEGER  */
+    IN = 263,                      /* IN  */
+    SKIP = 264,                    /* SKIP  */
+    IF = 265,                      /* IF  */
+    THEN = 266,                    /* THEN  */
+    ELSE = 267,                    /* ELSE  */
+    FI = 268,                      /* FI  */
+    END = 269,                     /* END  */
+    WHILE = 270,                   /* WHILE  */
+    DO = 271,                      /* DO  */
+    READ = 272,                    /* READ  */
+    WRITE = 273,                   /* WRITE  */
+    ASSGNOP = 274,                 /* ASSGNOP  */
+    UMINUS = 275                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 14 "sintatico.y"
+
+    struct astNo* ast_no;
+    int intval;
+    char* id;
+
+#line 90 "sintatico.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -85,6 +97,8 @@ typedef int YYSTYPE;
 
 extern YYSTYPE yylval;
 
+
 int yyparse (void);
+
 
 #endif /* !YY_YY_SINTATICO_TAB_H_INCLUDED  */

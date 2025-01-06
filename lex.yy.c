@@ -1,5 +1,5 @@
 
-#line 2 "lex.yy.c"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -509,10 +509,12 @@ char *yytext;
 #include <stdlib.h>
 #include <string.h>
 #include "sintatico.tab.h"
-#line 512 "lex.yy.c"
+#include "ast/ast.h"
+#line 514 "lex.yy.c"
+#define YY_NO_INPUT 1
 /* auxiliares */
 /* identificadores */
-#line 515 "lex.yy.c"
+#line 518 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -523,7 +525,7 @@ char *yytext;
  */
 #include <unistd.h>
 #endif
-    
+
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
 #endif
@@ -572,8 +574,6 @@ extern int yywrap ( void );
 #endif
 
 #ifndef YY_NO_UNPUT
-    
-    static void yyunput ( int c, char *buf_ptr  );
     
 #endif
 
@@ -729,9 +729,9 @@ YY_DECL
 		}
 
 	{
-#line 20 "lexico.l"
+#line 22 "lexico.l"
 
-#line 734 "lex.yy.c"
+#line 735 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -800,114 +800,114 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 21 "lexico.l"
+#line 23 "lexico.l"
 { return(ASSGNOP);      }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 22 "lexico.l"
+#line 24 "lexico.l"
 { return(DO);           }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 23 "lexico.l"
+#line 25 "lexico.l"
 { return(END);          }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 24 "lexico.l"
+#line 26 "lexico.l"
 { return(IF);           }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 25 "lexico.l"
+#line 27 "lexico.l"
 { return(ELSE);         }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 26 "lexico.l"
+#line 28 "lexico.l"
 { return(FI);           }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 27 "lexico.l"
+#line 29 "lexico.l"
 { return(IN);           }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 28 "lexico.l"
+#line 30 "lexico.l"
 { return(INTEGER);      }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 29 "lexico.l"
+#line 31 "lexico.l"
 { return(LET);          }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 30 "lexico.l"
+#line 32 "lexico.l"
 { return(READ);         }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 31 "lexico.l"
+#line 33 "lexico.l"
 { return(SKIP);         }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 32 "lexico.l"
+#line 34 "lexico.l"
 { return(THEN);         }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 33 "lexico.l"
+#line 35 "lexico.l"
 { return(WHILE);        }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 34 "lexico.l"
+#line 36 "lexico.l"
 { return(WRITE);        }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 36 "lexico.l"
+#line 38 "lexico.l"
 /* Nada */
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 37 "lexico.l"
+#line 39 "lexico.l"
 /* Nada */
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 38 "lexico.l"
-{ /* yylval.id = (char *) strdup(yytext); */
+#line 40 "lexico.l"
+{ yylval.id = (char *) strdup(yytext);
                               return(IDENTIFIER);   }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 40 "lexico.l"
-{ /* yylval.intval = atoi(yytext); */
+#line 42 "lexico.l"
+{ yylval.intval = atoi(yytext);
                               return(NUMBER);       }
 	YY_BREAK
 case 19:
 /* rule 19 can match eol */
 YY_RULE_SETUP
-#line 42 "lexico.l"
+#line 44 "lexico.l"
 /* Nada */
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 43 "lexico.l"
+#line 45 "lexico.l"
 { return(yytext[0]);    } /* Qualquer token de 1 caractere (-, +, *, ;) cai pra esse caso, onde o token retornado é o próprio caractere */
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 44 "lexico.l"
+#line 46 "lexico.l"
 ECHO;
 	YY_BREAK
-#line 910 "lex.yy.c"
+#line 911 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1242,47 +1242,6 @@ static int yy_get_next_buffer (void)
 }
 
 #ifndef YY_NO_UNPUT
-
-    static void yyunput (int c, char * yy_bp )
-{
-	char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up yytext */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		int number_to_move = (yy_n_chars) + 2;
-		char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = (int) YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-    if ( c == '\n' ){
-        --yylineno;
-    }
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
-}
 
 #endif
 
@@ -1924,7 +1883,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 44 "lexico.l"
+#line 46 "lexico.l"
 
 
 int yywrap() {
