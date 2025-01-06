@@ -8,6 +8,16 @@ Repositório de armazenamento do compilador que será elaborado para a disciplin
 
 ## Como testar o analisador léxico/sintático?
 
-Para testar o `sintatico.y`, rode:
+Para testar o `sintatico.y`
 
-``flex lexico.l && bison -d sintatico.y && gcc sintatico.tab.c lex.yy.c && ./a.out teste.simple``
+### Fazer Build
+
+``make``
+
+### Executar
+
+``make run``
+
+### Remover arquivos gerados
+
+``make clean``
