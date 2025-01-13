@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 2 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -510,11 +510,11 @@ char *yytext;
 #include <string.h>
 #include "sintatico.tab.h"
 #include "ast/ast.h"
-#line 514 "lex.yy.c"
+#line 513 "lex.yy.c"
 #define YY_NO_INPUT 1
 /* auxiliares */
 /* identificadores */
-#line 518 "lex.yy.c"
+#line 517 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -525,7 +525,7 @@ char *yytext;
  */
 #include <unistd.h>
 #endif
-
+    
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
 #endif
@@ -731,7 +731,7 @@ YY_DECL
 	{
 #line 22 "lexico.l"
 
-#line 735 "lex.yy.c"
+#line 734 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -907,7 +907,7 @@ YY_RULE_SETUP
 #line 46 "lexico.l"
 ECHO;
 	YY_BREAK
-#line 911 "lex.yy.c"
+#line 910 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

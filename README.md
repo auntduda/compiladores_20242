@@ -4,7 +4,7 @@ Repositório de armazenamento do compilador que será elaborado para a disciplin
 
 ## Requisitos
 - flex 2.6.4
-- bison 3.7.4
+- bison 3.8.2
 
 ## Como testar o analisador léxico/sintático?
 
