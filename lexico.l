@@ -4,6 +4,7 @@
 #include <string.h>
 #include "sintatico.tab.h"
 #include "ast/ast.h"
+#include "tabSimb.h"
 %}
 
 %option yylineno

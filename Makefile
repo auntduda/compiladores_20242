@@ -11,12 +11,14 @@ BISON_FILE = sintatico.y
 AST_DIR = ast
 AST_SRC = $(AST_DIR)/ast.c
 AST_HDR = $(AST_DIR)/ast.h
+SYM_SRC = tabSimb.c
+SYM_HDR = tabSimb.h
 
 # Arquivos gerados
 BISON_C = sintatico.tab.c
 BISON_H = sintatico.tab.h
 LEX_C = lex.yy.c
-OBJ = $(BISON_C) $(LEX_C) $(AST_SRC)
+OBJ = $(BISON_C) $(LEX_C) $(SYM_SRC) $(AST_SRC)
 
 # Arquivos de teste
 TEST_FILES = teste3.simple
