@@ -3,10 +3,6 @@
 #include <string.h>
 #include "tabSimb.h"
 
-/* Tipos de variaveis. A nossa linguagem trabalha apenas com variaveis inteiras, mas a presenca deste
-campo facilita uma eventual modificacao que inclua outros tipos. */
-#define INT 0
-
 /* Funcao que cria uma nova tabela de simbolos. */
 tabSimb criaTabela(){
     tabSimb novaTabela;

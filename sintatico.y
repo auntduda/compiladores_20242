@@ -19,7 +19,7 @@ void install (char* nome_simb){
     /* Chama a funcao que coloca um novo elemento na tabela. Se a funcao retornar 1, significa que um elemento com esse nome ja exisitia, o que ativara um erro. Se o retorno for 0, o elemento foi colocado na tabela de simbolos. */
     if (pushElem(&tabela, nome_simb, INT)) {
         erros++;
-        printf("Ja existe uma variavel chamada %s.\n", nome_simb);
+        printf("ERRO: Ja existe uma variavel chamada %s.\n", nome_simb);
     }
     return;
 }
@@ -27,7 +27,8 @@ void install (char* nome_simb){
 /* Verifica se o simbolo existe na tabela. */
 void context_check(char* nome_simb){
     if (inTab(tabela, nome_simb) == 0){
-        printf("Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
     }
     return;
 }
@@ -36,7 +37,8 @@ void context_check(char* nome_simb){
 void context_check_and_mark(char* nome_simb){
     elemTab* endereco;
     if (getElem(tabela, nome_simb, &endereco) == 0){
-        printf("Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
         return;
     }
     endereco -> usado = 1;
@@ -47,10 +49,14 @@ void context_check_and_mark(char* nome_simb){
 void context_check_used(char* nome_simb){
     elemTab* endereco;
     if (getElem(tabela, nome_simb, &endereco) == 0){
-        printf("Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
         return;
     }
-    if (!(endereco -> usado)) printf("Nao foi atribuido valor para a variavel %s.\n", nome_simb);
+    if (!(endereco -> usado)) {
+        erros++;
+        printf("ERRO: Nao foi atribuido valor para a variavel %s.\n", nome_simb);
+        }
     return;
 }
 
@@ -241,22 +247,26 @@ int main(int argc, char *argv[]) {
     printf("Analisando arquivo '%s'...\n", argv[0]);
     yyparse();
 
-    /* Imprime as variaveis da tabela */
-    printf("\n");
-    printTab(tabela);
-    printf("\n");
+    if (erros > 0) printf("Compilacao concluida com erros.\n");
 
-    /* Imprime as variaveis que nao foram usadas. */
-    naoUsado(tabela);
-    printf("\n");
+    else {
+        /* Imprime as variaveis da tabela */
+        printf("\n");
+        printTab(tabela);
+        printf("\n");
 
-    if(astTree){
-    	printf("Arvore Sintatica: \n");
-    	astPrint(astTree);
-    	astDeepFree(astTree);
+        /* Imprime as variaveis que nao foram usadas. */
+        naoUsado(tabela);
+        printf("\n");
+
+        if(astTree){
+            printf("Arvore Sintatica: \n");
+            astPrint(astTree);
+            astDeepFree(astTree);
+        }
+        
+        return 0;
     }
-    
-    return 0;
 }
 
 int yyerror(const char* s) {
