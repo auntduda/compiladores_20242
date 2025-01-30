@@ -28,6 +28,8 @@ char pushElem(tabSimb* tabela, char* nome, char tipo){
     novoElem -> tipo = tipo;
     novoElem -> nome = nome;
     novoElem -> usado = 0;
+    novoElem -> contador = 0;
+    novoElem -> reg = 0;
     novoElem -> prox = (elemTab*) malloc(sizeof(elemTab));
     tabela -> tamanho += 1;
 
@@ -53,6 +55,7 @@ char getElem(tabSimb tabela, char* nome, elemTab** endereco){
     for (unsigned int i = 0; i < tabela.tamanho; i++){
         if (strcmp(elemAtual -> nome, nome) == 0){
             *endereco = elemAtual;
+            elemAtual->contador++;
             return 1;
         }
         elemAtual = elemAtual -> prox;
@@ -60,6 +63,23 @@ char getElem(tabSimb tabela, char* nome, elemTab** endereco){
 
     return 0;
 }
+
+/* Multiplica o contador de um elemento da tabela por 10 devido ocorrer dentro de loop, guarda seu endereço na variavel endereço. Se o elemento nao for encontrado, retorna 0 */
+char multContador(tabSimb tabela, char* nome){
+    elemTab* elemAtual = tabela.primeiro;
+    for (unsigned int i = 0; i < tabela.tamanho; i++){
+        if (strcmp(elemAtual -> nome, nome) == 0){
+        	elemAtual->contador = (elemAtual->contador + 100);
+            return 1;
+        }
+        elemAtual = elemAtual -> prox;
+    }
+
+    return 0;
+}
+
+
+
 
 /* Funcao que verifica se existe alguma variavel que nao foi usada na tabela. As variaveis que nao foram usados sao impressos na tela. */
 char naoUsado(tabSimb tabela){
@@ -88,7 +108,7 @@ void printTab(tabSimb tabela){
 
     printf("Variaveis declaradas:\n");
     for (unsigned int i = 0; i < tabela.tamanho; i++){
-        printf("%s\n", elemento -> nome);
+        printf("%s -- %d\n", elemento -> nome, elemento->contador);
         elemento = elemento -> prox;
     }
 

@@ -9,8 +9,11 @@ TARGET = a.out
 LEX_FILE = lexico.l
 BISON_FILE = sintatico.y
 AST_DIR = ast
+OPT_DIR = otimizador
 AST_SRC = $(AST_DIR)/ast.c
 AST_HDR = $(AST_DIR)/ast.h
+OPT_SRC = $(OPT_DIR)/otimizador.c
+OPT_HDR = $(OPT_DIR)/otimizador.h
 SYM_SRC = tabSimb.c
 SYM_HDR = tabSimb.h
 
@@ -18,10 +21,10 @@ SYM_HDR = tabSimb.h
 BISON_C = sintatico.tab.c
 BISON_H = sintatico.tab.h
 LEX_C = lex.yy.c
-OBJ = $(BISON_C) $(LEX_C) $(SYM_SRC) $(AST_SRC)
+OBJ = $(BISON_C) $(LEX_C) $(SYM_SRC) $(AST_SRC) $(OPT_SRC)
 
 # Arquivos de teste
-TEST_FILES = teste3.simple
+TEST_FILES = teste2.simple
 
 # Regra padrao
 all: $(TARGET)

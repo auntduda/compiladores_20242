@@ -4,6 +4,7 @@
 #include <string.h>
 #include "ast/ast.h" /* Arvore Sintatica */
 #include "tabSimb.h" /* Tabela de simbolos */
+#include "otimizador/otimizador.h" /* Otimizador */
 
 /* Lista de tipos de variaveis. */
 #define INT 0
@@ -44,6 +45,15 @@ void context_check_and_mark(char* nome_simb){
     endereco -> usado = 1;
     return;
 }
+/* Verifica se o simbolo existe na tabela e, se existir, marca ele como usado. */
+void multContador10(char* nome_simb){
+    if (multContador(tabela, nome_simb) == 0){
+        erros++;
+        printf("ERRO: Não foi encontrada a variável para multiplicar o contador por 10: %s.\n", nome_simb);
+        return;
+    }
+    return;
+}
 
 /* Verifca se o simbolo existe na tabela e se ele foi usado. */
 void context_check_used(char* nome_simb){
@@ -60,9 +70,13 @@ void context_check_used(char* nome_simb){
     return;
 }
 
+
+
 extern int yylex();
 extern int yylineno;
 astNo* astTree;
+char** variaveisLoop;
+int tamanhoVariaveisLoop = 0;
 
 int yyerror(const char* s);
 %}
@@ -158,6 +172,7 @@ command:
     | READ IDENTIFIER {
         $$ = astCreateNo(READ_K, $2, NULL, 0);
         context_check_and_mark( $2 ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
+        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $2); /* A variavel foi usada neste escopo */
         
     }
     | WRITE exp {
@@ -167,7 +182,8 @@ command:
     | IDENTIFIER ASSGNOP exp {
         $$ = astCreateNo(ASSIGN_K, $1, NULL, 0);
         astPutChild($$, &($3), 1);
-        context_check_and_mark($1); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
+        context_check_and_mark( $1 ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
+        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $1); /* A variavel foi usada neste escopo */
         
     }
     | IF exp THEN commands ELSE commands FI {
@@ -179,6 +195,20 @@ command:
         $$ = astCreateNo(WHILE_K, NULL, NULL, 0);
         astNo* children[] = { $2, $4 };
         astPutChild($$, children, 2);
+        
+        /* Verifico as variaveis que foram usadas aqui                                  
+           Multiplico por 10 a quantidade de vezes que a variavel aparece dentro do loop
+           Zero a lista de variaveis de loop */                                            
+         
+        for (int i = 0; i < tamanhoVariaveisLoop; i++) {
+            printf("%s\n", variaveisLoop[i]);
+            multContador10( variaveisLoop[i] );
+        }
+        limparLista(&variaveisLoop, &tamanhoVariaveisLoop);
+        
+        /* Agora temos armazenado no contador da tabela de simbolos a prioridade das variaveis
+           em estar armazenada em um registrador */
+        
     }
 ;
 exp:
@@ -191,6 +221,7 @@ exp:
     | IDENTIFIER {
         $$ = astCreateTerminal(VAR_K, $1, NULL, 0, yylineno);
         context_check_used($1); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
+        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $1); /* A variavel foi usada neste escopo */
     }
     | exp '<' exp {
         $$ = astCreateNo(LESS_K, NULL, NULL, 0);

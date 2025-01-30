@@ -7,6 +7,8 @@ typedef struct elemTab {
     char tipo; /* Tipo da variavel. Embora a nossa linguagem tenha apenas um tipo, colocar este campo facilita uma possivel modificacao da linguagem que inclua novos tipos. */
     char usado; /* Afirma se a variavel foi usada ou nao. */
     void* conteudo; /* Endereco do conteudo da variavel. */
+    int contador;   /* Determina quantas vezes a variavel foi utilizada no programa */
+    int reg;        /* valor 1 indica que a variavel esta em registrador e nao memoria */
     struct elemTab* prox; // Endereco do elemento seguinte da lista
 } elemTab;
 
@@ -20,6 +22,7 @@ tabSimb criaTabela();
 char pushElem(tabSimb* tabela, char* nome, char tipo);
 char inTab(tabSimb tabela, char* nome);
 char getElem(tabSimb tabela, char* nome, elemTab** endereco);
+char multContador(tabSimb tabela, char* nome);
 char naoUsado(tabSimb tabela);
 void printTab(tabSimb tabela);
 
