@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>  // Para usar argumentos variaveis
 
 #include "otimizador.h" 
 
@@ -50,3 +51,37 @@ void limparLista(char ***lista, int *tamanho) {
     *lista = NULL;  // Evita ponteiros danificados
     *tamanho = 0;   // Define o tamanho como 0
 }
+
+
+
+char* concat_str(int num, ...) {
+    va_list args;
+    va_start(args, num);
+
+    // Alocar espaco inicial para a string resultante
+    char* resultado = (char*)malloc(200 * sizeof(char));
+    resultado[0] = '\0';  // Inicializa a string vazia
+
+    for (int i = 0; i < num; i++) {
+        char* str = va_arg(args, char*);
+        strcat(resultado, str);  // Concatena ao resultado
+    }
+
+    va_end(args);
+    return resultado;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

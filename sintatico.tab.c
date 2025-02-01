@@ -604,11 +604,11 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int16 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,   111,   111,   120,   123,   138,   141,   156,   159,   163,
-     169,   172,   178,   182,   189,   194,   215,   221,   226,   231,
-     236,   241,   246,   251,   256,   261,   265
+       0,   112,   112,   118,   121,   127,   130,   137,   140,   143,
+     149,   153,   158,   161,   166,   169,   178,   183,   187,   190,
+     193,   196,   199,   202,   205,   208,   211
 };
 #endif
 
@@ -1432,274 +1432,219 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: LET declarations IN commands END  */
-#line 111 "sintatico.y"
+#line 112 "sintatico.y"
                                      {
         printf("Programa sintaticamente correto!\n");
-        astTree = astCreateNo(PROGRAM_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-3].ast_no), (yyvsp[-1].ast_no) };
-        astPutChild(astTree, children, 2);
     }
-#line 1443 "sintatico.tab.c"
+#line 1440 "sintatico.tab.c"
     break;
 
   case 3: /* declarations: %empty  */
-#line 120 "sintatico.y"
+#line 118 "sintatico.y"
            {
-        (yyval.ast_no) = NULL;
+        (yyval.command) = NULL;
     }
-#line 1451 "sintatico.tab.c"
+#line 1448 "sintatico.tab.c"
     break;
 
   case 4: /* declarations: INTEGER id_seq IDENTIFIER '.'  */
-#line 123 "sintatico.y"
+#line 121 "sintatico.y"
                                     {
-        // Create declarations node
-        struct astNo* decl = astCreateNo(DECLARATIONS_K, NULL, NULL, 0);
-
-        // Add last IDENTIFIER and id_seq on children
-        struct astNo* last_id = astCreateTerminal(VAR_K, (yyvsp[-1].id), NULL, 0, yylineno);
-        astNo* children[] = { (yyvsp[-2].ast_no), last_id };
-        astPutChild(decl, children, 2);
-
-        (yyval.ast_no) = decl;
         install( (yyvsp[-1].id) ); /* Coloca IDENTIFIER na tabela de simbolos. */
     }
-#line 1468 "sintatico.tab.c"
+#line 1456 "sintatico.tab.c"
     break;
 
   case 5: /* id_seq: %empty  */
-#line 138 "sintatico.y"
+#line 127 "sintatico.y"
            {
-        (yyval.ast_no) = NULL;
+        (yyval.command) = NULL;
     }
-#line 1476 "sintatico.tab.c"
+#line 1464 "sintatico.tab.c"
     break;
 
   case 6: /* id_seq: id_seq IDENTIFIER ','  */
-#line 141 "sintatico.y"
+#line 130 "sintatico.y"
                             {
-        struct astNo* id_node = astCreateTerminal(VAR_K, (yyvsp[-1].id), NULL, 0, yylineno);
-
-        if ((yyvsp[-2].ast_no)) {
-            astPutSibling((yyvsp[-2].ast_no), &id_node, 1);
-            (yyval.ast_no) = (yyvsp[-2].ast_no);
-        } else {
-            (yyval.ast_no) = id_node;
-        }
         install( (yyvsp[-1].id) ); /* Coloca IDENTIFIER na tabela de simbolos. */
     }
-#line 1492 "sintatico.tab.c"
+#line 1472 "sintatico.tab.c"
     break;
 
   case 7: /* commands: %empty  */
-#line 156 "sintatico.y"
+#line 137 "sintatico.y"
            {
-        (yyval.ast_no) = NULL;
+        (yyval.command) = strdup("");  // Inicializa como string vazia
     }
-#line 1500 "sintatico.tab.c"
+#line 1480 "sintatico.tab.c"
     break;
 
   case 8: /* commands: commands command ';'  */
-#line 159 "sintatico.y"
+#line 140 "sintatico.y"
                            {
-        astPutSibling((yyvsp[-2].ast_no), &((yyvsp[-1].ast_no)), 1);
-        (yyval.ast_no) = (yyvsp[-2].ast_no);
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), (yyvsp[-1].command), ";");  // Concatena as strings
     }
-#line 1509 "sintatico.tab.c"
+#line 1488 "sintatico.tab.c"
     break;
 
   case 9: /* commands: command ';'  */
-#line 163 "sintatico.y"
+#line 143 "sintatico.y"
                   {
-        (yyval.ast_no) = (yyvsp[-1].ast_no);
+        (yyval.command) = concat_str(2, (yyvsp[-1].command), ";");
     }
-#line 1517 "sintatico.tab.c"
+#line 1496 "sintatico.tab.c"
     break;
 
   case 10: /* command: SKIP  */
-#line 169 "sintatico.y"
+#line 149 "sintatico.y"
          {
-        (yyval.ast_no) = astCreateNo(SKIP_K, NULL, NULL, 0);
+        (yyval.command) = strdup("SKIP");
+        /* Construindo Strings para todos os comandos que podem vir dentro do while */
     }
-#line 1525 "sintatico.tab.c"
+#line 1505 "sintatico.tab.c"
     break;
 
   case 11: /* command: READ IDENTIFIER  */
-#line 172 "sintatico.y"
+#line 153 "sintatico.y"
                       {
-        (yyval.ast_no) = astCreateNo(READ_K, (yyvsp[0].id), NULL, 0);
-        context_check_and_mark( (yyvsp[0].id) ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, (yyvsp[0].id)); /* A variavel foi usada neste escopo */
+        (yyval.command) = concat_str(2, "READ ", (yyvsp[0].id));
+        context_check_and_mark((yyvsp[0].id)); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
-#line 1536 "sintatico.tab.c"
+#line 1515 "sintatico.tab.c"
     break;
 
   case 12: /* command: WRITE exp  */
-#line 178 "sintatico.y"
+#line 158 "sintatico.y"
                 {
-        (yyval.ast_no) = astCreateNo(WRITE_K, NULL, NULL, 0);
-        astPutChild((yyval.ast_no), &((yyvsp[0].ast_no)), 1);
+        (yyval.command) = concat_str(2, "WRITE ", (yyvsp[0].command));
     }
-#line 1545 "sintatico.tab.c"
+#line 1523 "sintatico.tab.c"
     break;
 
   case 13: /* command: IDENTIFIER ASSGNOP exp  */
-#line 182 "sintatico.y"
+#line 161 "sintatico.y"
                              {
-        (yyval.ast_no) = astCreateNo(ASSIGN_K, (yyvsp[-2].id), NULL, 0);
-        astPutChild((yyval.ast_no), &((yyvsp[0].ast_no)), 1);
-        context_check_and_mark( (yyvsp[-2].id) ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, (yyvsp[-2].id)); /* A variavel foi usada neste escopo */
+        (yyval.command) = concat_str(3, (yyvsp[-2].id), " = ", (yyvsp[0].command));
+        context_check_and_mark((yyvsp[-2].id));/* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
-#line 1557 "sintatico.tab.c"
+#line 1533 "sintatico.tab.c"
     break;
 
   case 14: /* command: IF exp THEN commands ELSE commands FI  */
-#line 189 "sintatico.y"
+#line 166 "sintatico.y"
                                             {
-        (yyval.ast_no) = astCreateNo(IF_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-5].ast_no), (yyvsp[-3].ast_no), (yyvsp[-1].ast_no) };
-        astPutChild((yyval.ast_no), children, 3);
+        (yyval.command) = concat_str(7, "IF ", (yyvsp[-5].command), " THEN ", (yyvsp[-3].command), " ELSE ", (yyvsp[-1].command), " FI");
     }
-#line 1567 "sintatico.tab.c"
+#line 1541 "sintatico.tab.c"
     break;
 
   case 15: /* command: WHILE exp DO commands END  */
-#line 194 "sintatico.y"
+#line 169 "sintatico.y"
                                 {
-        (yyval.ast_no) = astCreateNo(WHILE_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-3].ast_no), (yyvsp[-1].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-        
-        /* Verifico as variaveis que foram usadas aqui                                  
-           Multiplico por 10 a quantidade de vezes que a variavel aparece dentro do loop
-           Zero a lista de variaveis de loop */                                            
-         
-        for (int i = 0; i < tamanhoVariaveisLoop; i++) {
-            printf("%s\n", variaveisLoop[i]);
-            multContador10( variaveisLoop[i] );
-        }
-        limparLista(&variaveisLoop, &tamanhoVariaveisLoop);
-        
-        /* Agora temos armazenado no contador da tabela de simbolos a prioridade das variaveis
-           em estar armazenada em um registrador */
-        
+        (yyval.command) = concat_str(5, "WHILE ", (yyvsp[-3].command), " DO ", (yyvsp[-1].command), " END");
+        printf("Expressao: %s\n", (yyvsp[-3].command));
+        printf("Comandos: %s\n", (yyvsp[-1].command));
+        /* Dessa forma basta iterarmos por cada string verificando as variáveis que aparecem e multiplicando 
+           a sua contagem por 10 */
     }
-#line 1591 "sintatico.tab.c"
+#line 1553 "sintatico.tab.c"
     break;
 
   case 16: /* exp: NUMBER  */
-#line 215 "sintatico.y"
+#line 178 "sintatico.y"
            {
-        char buffer[12];
+        char buffer[20];
         sprintf(buffer, "%d", (yyvsp[0].intval));
-        char* num_str = strdup(buffer);
-        (yyval.ast_no) = astCreateTerminal(NUM_K, num_str, NULL, 0, yylineno);
+        (yyval.command) = strdup(buffer);
     }
-#line 1602 "sintatico.tab.c"
+#line 1563 "sintatico.tab.c"
     break;
 
   case 17: /* exp: IDENTIFIER  */
-#line 221 "sintatico.y"
+#line 183 "sintatico.y"
                  {
-        (yyval.ast_no) = astCreateTerminal(VAR_K, (yyvsp[0].id), NULL, 0, yylineno);
+        (yyval.command) = strdup((yyvsp[0].id));
         context_check_used((yyvsp[0].id)); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, (yyvsp[0].id)); /* A variavel foi usada neste escopo */
+    }
+#line 1572 "sintatico.tab.c"
+    break;
+
+  case 18: /* exp: exp '<' exp  */
+#line 187 "sintatico.y"
+                  {
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " < ", (yyvsp[0].command));
+    }
+#line 1580 "sintatico.tab.c"
+    break;
+
+  case 19: /* exp: exp '>' exp  */
+#line 190 "sintatico.y"
+                  {
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " > ", (yyvsp[0].command));
+    }
+#line 1588 "sintatico.tab.c"
+    break;
+
+  case 20: /* exp: exp '+' exp  */
+#line 193 "sintatico.y"
+                  {
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " + ", (yyvsp[0].command));
+    }
+#line 1596 "sintatico.tab.c"
+    break;
+
+  case 21: /* exp: exp '-' exp  */
+#line 196 "sintatico.y"
+                  {
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " - ", (yyvsp[0].command));
+    }
+#line 1604 "sintatico.tab.c"
+    break;
+
+  case 22: /* exp: exp '*' exp  */
+#line 199 "sintatico.y"
+                  {
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " * ", (yyvsp[0].command));
     }
 #line 1612 "sintatico.tab.c"
     break;
 
-  case 18: /* exp: exp '<' exp  */
-#line 226 "sintatico.y"
-                  {
-        (yyval.ast_no) = astCreateNo(LESS_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-    }
-#line 1622 "sintatico.tab.c"
-    break;
-
-  case 19: /* exp: exp '>' exp  */
-#line 231 "sintatico.y"
-                  {
-        (yyval.ast_no) = astCreateNo(GREATER_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-    }
-#line 1632 "sintatico.tab.c"
-    break;
-
-  case 20: /* exp: exp '+' exp  */
-#line 236 "sintatico.y"
-                  {
-        (yyval.ast_no) = astCreateNo(PLUS_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-    }
-#line 1642 "sintatico.tab.c"
-    break;
-
-  case 21: /* exp: exp '-' exp  */
-#line 241 "sintatico.y"
-                  {
-        (yyval.ast_no) = astCreateNo(MINUS_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-    }
-#line 1652 "sintatico.tab.c"
-    break;
-
-  case 22: /* exp: exp '*' exp  */
-#line 246 "sintatico.y"
-                  {
-        (yyval.ast_no) = astCreateNo(MULT_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
-    }
-#line 1662 "sintatico.tab.c"
-    break;
-
   case 23: /* exp: exp '/' exp  */
-#line 251 "sintatico.y"
+#line 202 "sintatico.y"
                   {
-        (yyval.ast_no) = astCreateNo(DIV_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " / ", (yyvsp[0].command));
     }
-#line 1672 "sintatico.tab.c"
+#line 1620 "sintatico.tab.c"
     break;
 
   case 24: /* exp: exp '^' exp  */
-#line 256 "sintatico.y"
+#line 205 "sintatico.y"
                   {
-        (yyval.ast_no) = astCreateNo(EXP_K, NULL, NULL, 0);
-        astNo* children[] = { (yyvsp[-2].ast_no), (yyvsp[0].ast_no) };
-        astPutChild((yyval.ast_no), children, 2);
+        (yyval.command) = concat_str(3, (yyvsp[-2].command), " ^ ", (yyvsp[0].command));
     }
-#line 1682 "sintatico.tab.c"
+#line 1628 "sintatico.tab.c"
     break;
 
   case 25: /* exp: '-' exp  */
-#line 261 "sintatico.y"
+#line 208 "sintatico.y"
                            {
-        (yyval.ast_no) = astCreateNo(UMINUS_K, NULL, NULL, 0);
-        astPutChild((yyval.ast_no), &((yyvsp[0].ast_no)), 1);
+        (yyval.command) = concat_str(2, "-", (yyvsp[0].command));
     }
-#line 1691 "sintatico.tab.c"
+#line 1636 "sintatico.tab.c"
     break;
 
   case 26: /* exp: '(' exp ')'  */
-#line 265 "sintatico.y"
+#line 211 "sintatico.y"
                   {
-        (yyval.ast_no) = (yyvsp[-1].ast_no);
+        (yyval.command) = concat_str(3, "( ", (yyvsp[-1].command), " )");
     }
-#line 1699 "sintatico.tab.c"
+#line 1644 "sintatico.tab.c"
     break;
 
 
-#line 1703 "sintatico.tab.c"
+#line 1648 "sintatico.tab.c"
 
       default: break;
     }
@@ -1923,7 +1868,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 270 "sintatico.y"
+#line 216 "sintatico.y"
 
 
 int main(int argc, char *argv[]) {

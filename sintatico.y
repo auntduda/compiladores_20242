@@ -85,9 +85,10 @@ int yyerror(const char* s);
     struct astNo* ast_no;
     int intval;
     char* id;
+    char* command;
 }
 
-%type <ast_no> program declarations id_seq commands command exp
+%type <command> program declarations id_seq commands command exp
 %token <id> IDENTIFIER
 %token <intval> NUMBER
 
@@ -110,9 +111,6 @@ int yyerror(const char* s);
 program:
     LET declarations IN commands END {
         printf("Programa sintaticamente correto!\n");
-        astTree = astCreateNo(PROGRAM_K, NULL, NULL, 0);
-        astNo* children[] = { $2, $4 };
-        astPutChild(astTree, children, 2);
     }
 ;
 
@@ -121,15 +119,6 @@ declarations:
         $$ = NULL;
     }
     | INTEGER id_seq IDENTIFIER '.' {
-        // Create declarations node
-        struct astNo* decl = astCreateNo(DECLARATIONS_K, NULL, NULL, 0);
-
-        // Add last IDENTIFIER and id_seq on children
-        struct astNo* last_id = astCreateTerminal(VAR_K, $3, NULL, 0, yylineno);
-        astNo* children[] = { $2, last_id };
-        astPutChild(decl, children, 2);
-
-        $$ = decl;
         install( $3 ); /* Coloca IDENTIFIER na tabela de simbolos. */
     }
 ;
@@ -139,14 +128,6 @@ id_seq:
         $$ = NULL;
     }
     | id_seq IDENTIFIER ',' {
-        struct astNo* id_node = astCreateTerminal(VAR_K, $2, NULL, 0, yylineno);
-
-        if ($1) {
-            astPutSibling($1, &id_node, 1);
-            $$ = $1;
-        } else {
-            $$ = id_node;
-        }
         install( $2 ); /* Coloca IDENTIFIER na tabela de simbolos. */
     }
 ;
@@ -154,116 +135,81 @@ id_seq:
 
 commands:
     %empty {
-        $$ = NULL;
+        $$ = strdup("");  // Inicializa como string vazia
     }
     | commands command ';' {
-        astPutSibling($1, &($2), 1);
-        $$ = $1;
+        $$ = concat_str(3, $1, $2, ";");  // Concatena as strings
     }
     | command ';' {
-        $$ = $1;
+        $$ = concat_str(2, $1, ";");
     }
 ;
 
 command:
     SKIP {
-        $$ = astCreateNo(SKIP_K, NULL, NULL, 0);
+        $$ = strdup("SKIP");
+        /* Construindo Strings para todos os comandos que podem vir dentro do while */
     }
     | READ IDENTIFIER {
-        $$ = astCreateNo(READ_K, $2, NULL, 0);
-        context_check_and_mark( $2 ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $2); /* A variavel foi usada neste escopo */
+        $$ = concat_str(2, "READ ", $2);
+        context_check_and_mark($2); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
     | WRITE exp {
-        $$ = astCreateNo(WRITE_K, NULL, NULL, 0);
-        astPutChild($$, &($2), 1);
+        $$ = concat_str(2, "WRITE ", $2);
     }
     | IDENTIFIER ASSGNOP exp {
-        $$ = astCreateNo(ASSIGN_K, $1, NULL, 0);
-        astPutChild($$, &($3), 1);
-        context_check_and_mark( $1 ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $1); /* A variavel foi usada neste escopo */
+        $$ = concat_str(3, $1, " = ", $3);
+        context_check_and_mark($1);/* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
     | IF exp THEN commands ELSE commands FI {
-        $$ = astCreateNo(IF_K, NULL, NULL, 0);
-        astNo* children[] = { $2, $4, $6 };
-        astPutChild($$, children, 3);
+        $$ = concat_str(7, "IF ", $2, " THEN ", $4, " ELSE ", $6, " FI");
     }
     | WHILE exp DO commands END {
-        $$ = astCreateNo(WHILE_K, NULL, NULL, 0);
-        astNo* children[] = { $2, $4 };
-        astPutChild($$, children, 2);
-        
-        /* Verifico as variaveis que foram usadas aqui                                  
-           Multiplico por 10 a quantidade de vezes que a variavel aparece dentro do loop
-           Zero a lista de variaveis de loop */                                            
-         
-        for (int i = 0; i < tamanhoVariaveisLoop; i++) {
-            printf("%s\n", variaveisLoop[i]);
-            multContador10( variaveisLoop[i] );
-        }
-        limparLista(&variaveisLoop, &tamanhoVariaveisLoop);
-        
-        /* Agora temos armazenado no contador da tabela de simbolos a prioridade das variaveis
-           em estar armazenada em um registrador */
-        
+        $$ = concat_str(5, "WHILE ", $2, " DO ", $4, " END");
+        printf("Expressao: %s\n", $2);
+        printf("Comandos: %s\n", $4);
+        /* Dessa forma basta iterarmos por cada string verificando as variáveis que aparecem e multiplicando 
+           a sua contagem por 10 */
     }
 ;
 exp:
     NUMBER {
-        char buffer[12];
+        char buffer[20];
         sprintf(buffer, "%d", $1);
-        char* num_str = strdup(buffer);
-        $$ = astCreateTerminal(NUM_K, num_str, NULL, 0, yylineno);
+        $$ = strdup(buffer);
     }
     | IDENTIFIER {
-        $$ = astCreateTerminal(VAR_K, $1, NULL, 0, yylineno);
+        $$ = strdup($1);
         context_check_used($1); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
-        inserirString(&variaveisLoop, &tamanhoVariaveisLoop, $1); /* A variavel foi usada neste escopo */
     }
     | exp '<' exp {
-        $$ = astCreateNo(LESS_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " < ", $3);
     }
     | exp '>' exp {
-        $$ = astCreateNo(GREATER_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " > ", $3);
     }
     | exp '+' exp {
-        $$ = astCreateNo(PLUS_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " + ", $3);
     }
     | exp '-' exp {
-        $$ = astCreateNo(MINUS_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " - ", $3);
     }
     | exp '*' exp {
-        $$ = astCreateNo(MULT_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " * ", $3);
     }
     | exp '/' exp {
-        $$ = astCreateNo(DIV_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " / ", $3);
     }
     | exp '^' exp {
-        $$ = astCreateNo(EXP_K, NULL, NULL, 0);
-        astNo* children[] = { $1, $3 };
-        astPutChild($$, children, 2);
+        $$ = concat_str(3, $1, " ^ ", $3);
     }
     | '-' exp %prec UMINUS {
-        $$ = astCreateNo(UMINUS_K, NULL, NULL, 0);
-        astPutChild($$, &($2), 1);
+        $$ = concat_str(2, "-", $2);
     }
     | '(' exp ')' {
-        $$ = $2;
+        $$ = concat_str(3, "( ", $2, " )");
     }
 ;
 

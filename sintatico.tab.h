@@ -85,8 +85,9 @@ union YYSTYPE
     struct astNo* ast_no;
     int intval;
     char* id;
+    char* command;
 
-#line 90 "sintatico.tab.h"
+#line 91 "sintatico.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
