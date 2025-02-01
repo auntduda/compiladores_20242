@@ -2,16 +2,18 @@
 #define OPT_H
 
 #include <stdarg.h>  // Para usar argumentos variaveis
+#include "../tabSimb.h"
 
 
-void inserirString(char ***lista, int *tamanho, const char *novaString);
+int isVariable(const char* word);
 
-void limparLista(char ***lista, int *tamanho);
+void extractVariables(const char* codigo, char* variaveis[], int* tamanho);
 
-int stringJaExiste(char **lista, int tamanho, const char *novaString);
+char* concatStr(int num, ...);
 
-char* concat_str(int num, ...);
+int expressionProcessing(char* number, tabSimb tabela);
 
+int commandsProcessing(char* number, tabSimb tabela);
 
 #endif
 

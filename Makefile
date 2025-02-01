@@ -24,7 +24,7 @@ LEX_C = lex.yy.c
 OBJ = $(BISON_C) $(LEX_C) $(SYM_SRC) $(AST_SRC) $(OPT_SRC)
 
 # Arquivos de teste
-TEST_FILES = teste2.simple
+TEST_FILES = teste3.simple
 
 # Regra padrao
 all: $(TARGET)

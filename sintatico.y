@@ -45,13 +45,15 @@ void context_check_and_mark(char* nome_simb){
     endereco -> usado = 1;
     return;
 }
-/* Verifica se o simbolo existe na tabela e, se existir, marca ele como usado. */
-void multContador10(char* nome_simb){
-    if (multContador(tabela, nome_simb) == 0){
-        erros++;
-        printf("ERRO: Não foi encontrada a variável para multiplicar o contador por 10: %s.\n", nome_simb);
-        return;
+/* Verifica se o simbolo existe na tabela, se sim adiciona a sua contagem 10 vezes a quantidade de vezes que aparece no loop */
+void loop_count(char* exp, char* commands, tabSimb tabela){
+    if(expressionProcessing(exp, tabela) == 0){
+        printf("Nenhuma variável encontrada na expressão\n");
     }
+    if(commandsProcessing(commands, tabela) == 0){
+        printf("Nenhuma variável encontrada nos comandos\n");
+    }
+
     return;
 }
 
@@ -138,10 +140,10 @@ commands:
         $$ = strdup("");  // Inicializa como string vazia
     }
     | commands command ';' {
-        $$ = concat_str(3, $1, $2, ";");  // Concatena as strings
+        $$ = concatStr(3, $1, $2, ";");  // Concatena as strings
     }
     | command ';' {
-        $$ = concat_str(2, $1, ";");
+        $$ = concatStr(2, $1, ";");
     }
 ;
 
@@ -151,27 +153,26 @@ command:
         /* Construindo Strings para todos os comandos que podem vir dentro do while */
     }
     | READ IDENTIFIER {
-        $$ = concat_str(2, "READ ", $2);
+        $$ = concatStr(2, "READ ", $2);
         context_check_and_mark($2); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
     | WRITE exp {
-        $$ = concat_str(2, "WRITE ", $2);
+        $$ = concatStr(2, "WRITE ", $2);
     }
     | IDENTIFIER ASSGNOP exp {
-        $$ = concat_str(3, $1, " = ", $3);
+        $$ = concatStr(3, $1, " = ", $3);
         context_check_and_mark($1);/* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         
     }
     | IF exp THEN commands ELSE commands FI {
-        $$ = concat_str(7, "IF ", $2, " THEN ", $4, " ELSE ", $6, " FI");
+        $$ = concatStr(7, "IF ", $2, " THEN ", $4, " ELSE ", $6, " FI");
     }
     | WHILE exp DO commands END {
-        $$ = concat_str(5, "WHILE ", $2, " DO ", $4, " END");
+        $$ = concatStr(5, "WHILE ", $2, " DO ", $4, " END");
         printf("Expressao: %s\n", $2);
         printf("Comandos: %s\n", $4);
-        /* Dessa forma basta iterarmos por cada string verificando as variáveis que aparecem e multiplicando 
-           a sua contagem por 10 */
+        loop_count($2, $4, tabela);
     }
 ;
 exp:
@@ -185,31 +186,31 @@ exp:
         context_check_used($1); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
     }
     | exp '<' exp {
-        $$ = concat_str(3, $1, " < ", $3);
+        $$ = concatStr(3, $1, " < ", $3);
     }
     | exp '>' exp {
-        $$ = concat_str(3, $1, " > ", $3);
+        $$ = concatStr(3, $1, " > ", $3);
     }
     | exp '+' exp {
-        $$ = concat_str(3, $1, " + ", $3);
+        $$ = concatStr(3, $1, " + ", $3);
     }
     | exp '-' exp {
-        $$ = concat_str(3, $1, " - ", $3);
+        $$ = concatStr(3, $1, " - ", $3);
     }
     | exp '*' exp {
-        $$ = concat_str(3, $1, " * ", $3);
+        $$ = concatStr(3, $1, " * ", $3);
     }
     | exp '/' exp {
-        $$ = concat_str(3, $1, " / ", $3);
+        $$ = concatStr(3, $1, " / ", $3);
     }
     | exp '^' exp {
-        $$ = concat_str(3, $1, " ^ ", $3);
+        $$ = concatStr(3, $1, " ^ ", $3);
     }
     | '-' exp %prec UMINUS {
-        $$ = concat_str(2, "-", $2);
+        $$ = concatStr(2, "-", $2);
     }
     | '(' exp ')' {
-        $$ = concat_str(3, "( ", $2, " )");
+        $$ = concatStr(3, "( ", $2, " )");
     }
 ;
 
