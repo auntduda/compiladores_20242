@@ -7,6 +7,8 @@
 
 int isVariable(const char* word);
 
+int isReservedWord(const char* word);
+
 void extractVariables(const char* codigo, char* variaveis[], int* tamanho);
 
 char* concatStr(int num, ...);

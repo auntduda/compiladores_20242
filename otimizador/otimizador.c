@@ -8,31 +8,45 @@
 #include "otimizador.h" 
 #include "../tabSimb.h"
 
+const char* reservedWords[] = {
+    "do", "end", "if", "else", "fi", "in", "integer", "let", "read", "skip", "then", "while", "write"
+};
+const int numReservedWords = sizeof(reservedWords) / sizeof(reservedWords[0]);
+
 
 int isVariable(const char* word) {
-    if (!isalpha(word[0]) && word[0] != '_') return 0;
+    if (!isalpha(word[0])) return 0;
     for (int i = 1; word[i] != '\0'; i++) {
         if (!isalnum(word[i]) && word[i] != '_') return 0;
     }
     return 1;
 }
 
+int isReservedWord(const char* word) {
+    for (int i = 0; i < numReservedWords; i++) {
+        if (strcmp(word, reservedWords[i]) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void extractVariables(const char* codigo, char* variaveis[], int* tamanho) {
     char buffer[100];
 
     while (*codigo) {
-        if (isalpha(*codigo) || *codigo == '_') {
+        if (isalpha(*codigo)) {
             int i = 0;
             while (isalnum(*codigo) || *codigo == '_') {
                 buffer[i++] = *codigo++;
             }
             buffer[i] = '\0';
-            if (isVariable(buffer)) {
+            if (isVariable(buffer) && !isReservedWord(buffer)) {
                 variaveis[*tamanho] = strdup(buffer);
                 (*tamanho)++;
             }
         } else {
-            codigo++;
+            codigo++; /* Vai para o proximo endereco */
         }
     }
 }
@@ -69,6 +83,7 @@ int expressionProcessing(char* exp, tabSimb tabela){
     printf("Variaveis encontradas Expressão:\n");
     for (int i = 0; i < tamanho; i++) {
         printf("%s\n", variaveis[i]);
+        /* Nesse momento temos que somar 10 na contagem da variável na tabela de símbolos */
         free(variaveis[i]);
         achou = 1;
     }
@@ -93,6 +108,7 @@ int commandsProcessing(char* commands, tabSimb tabela){
     printf("Variaveis encontradas Comandos:\n");
     for (int i = 0; i < tamanho; i++) {
         printf("%s\n", variaveis[i]);
+        /* Nesse momento temos que somar 10 na contagem da variável na tabela de símbolos */
         free(variaveis[i]);
         achou = 1;
     }
