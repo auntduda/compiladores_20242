@@ -3,9 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "sintatico.tab.h"
+#include "ast/ast.h"
+#include "tabSimb.h"
 %}
 
 %option yylineno
+%option noinput nounput
 
 /* auxiliares */
 DIGIT             			[0-9]
@@ -35,9 +38,9 @@ write						{ return(WRITE);        }
 
 {COMMENT_LINE}				/* Nada */
 {COMMENT_BLOCK}				/* Nada */
-{ID}                        { /* yylval.id = (char *) strdup(yytext); */
+{ID}                        { yylval.id = (char *) strdup(yytext);
                               return(IDENTIFIER);   }
-{NUM}			            { /* yylval.intval = atoi(yytext); */
+{NUM}			            { yylval.intval = atoi(yytext);
                               return(NUMBER);       }
 {SPACE}					    /* Nada */
 .						    { return(yytext[0]);    } /* Qualquer token de 1 caractere (-, +, *, ;) cai pra esse caso, onde o token retornado é o próprio caractere */
