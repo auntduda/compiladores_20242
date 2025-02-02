@@ -4,10 +4,20 @@ Repositório de armazenamento do compilador que será elaborado para a disciplin
 
 ## Requisitos
 - flex 2.6.4
-- bison 3.7.4
+- bison 3.8.2
 
 ## Como testar o analisador léxico/sintático?
 
-Para testar o `sintatico.y`, rode:
+Para testar o `sintatico.y`
 
-``flex lexico.l && bison -d sintatico.y && gcc sintatico.tab.c lex.yy.c && ./a.out teste.simple``
+### Fazer Build
+
+``make``
+
+### Executar
+
+``make run``
+
+### Remover arquivos gerados
+
+``make clean``
