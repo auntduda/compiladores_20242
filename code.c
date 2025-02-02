@@ -1,10 +1,10 @@
-/****************************************************/
-/* File: code.c                                     */
-/* TM Code emitting utilities                       */
-/* implementation for the TINY compiler             */
-/* Compiler Construction: Principles and Practice   */
-/* Kenneth C. Louden                                */
-/****************************************************/
+// /****************************************************/
+// /* File: code.c                                     */
+// /* TM Code emitting utilities                       */
+// /* implementation for the TINY compiler             */
+// /* Compiler Construction: Principles and Practice   */
+// /* Kenneth C. Louden                                */
+// /****************************************************/
 
 // #include "globals.h"
 #include "sintatico.tab.h"
