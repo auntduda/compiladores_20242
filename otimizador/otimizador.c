@@ -200,25 +200,28 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 
 	char linha[1024];
 
-	if (fgets(linha, sizeof(linha), arquivo) == NULL) {
-		printf("Arquivo vazio");
-	}
-
 	while (fgets(linha, sizeof(linha), arquivo) != NULL) {
 		/* Campos para minha máquina virtual de otimização */
 		int reg[5];
 		
+		
 	    int i = 0;
-	    char numero_linha[10] = {0};
-	    char instrucao[10] = {0};
-	    char parametros[50] = {0};
+	    char numero_linha[10];
+	    char instrucao[10];
+	    char parametros[50];
+	    memset(numero_linha, 0, sizeof(numero_linha));
+	    memset(instrucao, 0, sizeof(instrucao));
+	    memset(parametros, 0, sizeof(parametros));
+	    
 	    int estado = 0;  // Automato simples baseado em estados
 
 	    int indice_numero = 0, indice_instrucao = 0, indice_parametros = 0;
 		while (linha[i] != '\0') {
 			char c = linha[i];
+			
 			switch (estado) {
 			case 0:
+				// if (isspace(c)) break; 
 				// Captura o numero da linha
 				if (isdigit(c)) {
 					numero_linha[indice_numero++] = c;
@@ -274,14 +277,16 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 		    	 * já não forem iguais
 		    	 */
 		    	if(atoi(rds[1]) == 0 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA 2,0(%s)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA 2,0(%d)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
 		    	}else if(atoi(rds[1]) == 1 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA 3,0(%s)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA 3,0(%d)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
 		    	}else if(atoi(rds[1]) == 2 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA 4,0(%s)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA 4,0(%d)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
+		    	}else{
+		    		strcpy(novaInstrucao, linha);
 		    	}
                 /* Dessa forma sempre que fizermos um store estarei guardando no registrador respectivo */
 		    	
@@ -292,14 +297,16 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 		    	 * */
 		    	// No load o valor de um registrador passa a ser do outro isso, se já não for o mesmo
 		    	if(atoi(rds[1]) == 0 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA %s,0(2)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA %d,0(2)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
 		    	}else if(atoi(rds[1]) == 1 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA %s,0(3)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA %d,0(3)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
 		    	}else if(atoi(rds[1]) == 2 && atoi(rds[2]) == 5){
-		    		sprintf(novaInstrucao, "Linha: %s LDA %s,0(4)\n", numero_linha, rds[0]);
+		    		sprintf(novaInstrucao, " %2d:    LDA %d,0(4)\n", atoi(numero_linha), atoi(rds[0]));
 		    		
+		    	}else{
+		    		strcpy(novaInstrucao, linha);
 		    	}
 		    	/* Dessa forma estamos carregando sempre o valor 
 		    	 * dos registradores de uso genérico
