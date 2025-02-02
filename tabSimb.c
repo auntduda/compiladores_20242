@@ -64,12 +64,12 @@ char getElem(tabSimb tabela, char* nome, elemTab** endereco){
     return 0;
 }
 
-/* Multiplica o contador de um elemento da tabela por 10 devido ocorrer dentro de loop, guarda seu endereço na variavel endereço. Se o elemento nao for encontrado, retorna 0 */
-char multContador(tabSimb tabela, char* nome){
+/* Soma em 10 o contador de ocorrencias das variaveis dentro de loops */
+char loopContador(tabSimb tabela, char* nome){
     elemTab* elemAtual = tabela.primeiro;
     for (unsigned int i = 0; i < tabela.tamanho; i++){
         if (strcmp(elemAtual -> nome, nome) == 0){
-        	elemAtual->contador = (elemAtual->contador + 100);
+        	elemAtual->contador = (elemAtual->contador + 10);
             return 1;
         }
         elemAtual = elemAtual -> prox;

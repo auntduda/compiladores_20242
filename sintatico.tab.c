@@ -609,8 +609,8 @@ static const yytype_int8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,   114,   114,   120,   123,   129,   132,   139,   142,   145,
-     151,   155,   160,   163,   168,   171,   179,   184,   188,   191,
-     194,   197,   200,   203,   206,   209,   212
+     151,   155,   160,   163,   168,   171,   180,   185,   189,   192,
+     195,   198,   201,   204,   207,   210,   213
 };
 #endif
 
@@ -1546,106 +1546,107 @@ yyreduce:
 #line 171 "sintatico.y"
                                 {
         (yyval.command) = concatStr(5, "WHILE ", (yyvsp[-3].command), " DO ", (yyvsp[-1].command), " END");
+        printf("Avaliando Otimizador:\n");
         printf("Expressao: %s\n", (yyvsp[-3].command));
         printf("Comandos: %s\n", (yyvsp[-1].command));
         loop_count((yyvsp[-3].command), (yyvsp[-1].command), tabela);
     }
-#line 1554 "sintatico.tab.c"
+#line 1555 "sintatico.tab.c"
     break;
 
   case 16: /* exp: NUMBER  */
-#line 179 "sintatico.y"
+#line 180 "sintatico.y"
            {
         char buffer[20];
         sprintf(buffer, "%d", (yyvsp[0].intval));
         (yyval.command) = strdup(buffer);
     }
-#line 1564 "sintatico.tab.c"
+#line 1565 "sintatico.tab.c"
     break;
 
   case 17: /* exp: IDENTIFIER  */
-#line 184 "sintatico.y"
+#line 185 "sintatico.y"
                  {
         (yyval.command) = strdup((yyvsp[0].id));
         context_check_used((yyvsp[0].id)); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
     }
-#line 1573 "sintatico.tab.c"
+#line 1574 "sintatico.tab.c"
     break;
 
   case 18: /* exp: exp '<' exp  */
-#line 188 "sintatico.y"
+#line 189 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " < ", (yyvsp[0].command));
     }
-#line 1581 "sintatico.tab.c"
+#line 1582 "sintatico.tab.c"
     break;
 
   case 19: /* exp: exp '>' exp  */
-#line 191 "sintatico.y"
+#line 192 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " > ", (yyvsp[0].command));
     }
-#line 1589 "sintatico.tab.c"
+#line 1590 "sintatico.tab.c"
     break;
 
   case 20: /* exp: exp '+' exp  */
-#line 194 "sintatico.y"
+#line 195 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " + ", (yyvsp[0].command));
     }
-#line 1597 "sintatico.tab.c"
+#line 1598 "sintatico.tab.c"
     break;
 
   case 21: /* exp: exp '-' exp  */
-#line 197 "sintatico.y"
+#line 198 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " - ", (yyvsp[0].command));
     }
-#line 1605 "sintatico.tab.c"
+#line 1606 "sintatico.tab.c"
     break;
 
   case 22: /* exp: exp '*' exp  */
-#line 200 "sintatico.y"
+#line 201 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " * ", (yyvsp[0].command));
     }
-#line 1613 "sintatico.tab.c"
+#line 1614 "sintatico.tab.c"
     break;
 
   case 23: /* exp: exp '/' exp  */
-#line 203 "sintatico.y"
+#line 204 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " / ", (yyvsp[0].command));
     }
-#line 1621 "sintatico.tab.c"
+#line 1622 "sintatico.tab.c"
     break;
 
   case 24: /* exp: exp '^' exp  */
-#line 206 "sintatico.y"
+#line 207 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, (yyvsp[-2].command), " ^ ", (yyvsp[0].command));
     }
-#line 1629 "sintatico.tab.c"
+#line 1630 "sintatico.tab.c"
     break;
 
   case 25: /* exp: '-' exp  */
-#line 209 "sintatico.y"
+#line 210 "sintatico.y"
                            {
         (yyval.command) = concatStr(2, "-", (yyvsp[0].command));
     }
-#line 1637 "sintatico.tab.c"
+#line 1638 "sintatico.tab.c"
     break;
 
   case 26: /* exp: '(' exp ')'  */
-#line 212 "sintatico.y"
+#line 213 "sintatico.y"
                   {
         (yyval.command) = concatStr(3, "( ", (yyvsp[-1].command), " )");
     }
-#line 1645 "sintatico.tab.c"
+#line 1646 "sintatico.tab.c"
     break;
 
 
-#line 1649 "sintatico.tab.c"
+#line 1650 "sintatico.tab.c"
 
       default: break;
     }
@@ -1869,7 +1870,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 217 "sintatico.y"
+#line 218 "sintatico.y"
 
 
 int main(int argc, char *argv[]) {
@@ -1892,12 +1893,12 @@ int main(int argc, char *argv[]) {
         /* Imprime as variaveis que nao foram usadas. */
         naoUsado(tabela);
         printf("\n");
-
-        if(astTree){
-            printf("Arvore Sintatica: \n");
-            astPrint(astTree);
-            astDeepFree(astTree);
-        }
+         
+        printf("Verificando otimizador\n");
+        
+        char* arquivoTiny = "otimizador/FATORIAL.tm";
+        
+        printf("%d\n", optimizeCode(arquivoTiny, tabela));
         
         return 0;
     }

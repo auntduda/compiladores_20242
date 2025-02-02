@@ -17,5 +17,9 @@ int expressionProcessing(char* number, tabSimb tabela);
 
 int commandsProcessing(char* number, tabSimb tabela);
 
+char** capturar_parametros(const char *instrucao);
+
+int optimizeCode(char* arquivoTiny, tabSimb tabela);
+
 #endif
 

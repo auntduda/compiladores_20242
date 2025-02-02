@@ -170,6 +170,7 @@ command:
     }
     | WHILE exp DO commands END {
         $$ = concatStr(5, "WHILE ", $2, " DO ", $4, " END");
+        printf("Avaliando Otimizador:\n");
         printf("Expressao: %s\n", $2);
         printf("Comandos: %s\n", $4);
         loop_count($2, $4, tabela);
@@ -236,12 +237,12 @@ int main(int argc, char *argv[]) {
         /* Imprime as variaveis que nao foram usadas. */
         naoUsado(tabela);
         printf("\n");
-
-        if(astTree){
-            printf("Arvore Sintatica: \n");
-            astPrint(astTree);
-            astDeepFree(astTree);
-        }
+         
+        printf("Verificando otimizador\n");
+        
+        char* arquivoTiny = "otimizador/FATORIAL.tm";
+        
+        printf("%d\n", optimizeCode(arquivoTiny, tabela));
         
         return 0;
     }

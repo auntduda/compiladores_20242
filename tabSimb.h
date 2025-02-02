@@ -22,7 +22,7 @@ tabSimb criaTabela();
 char pushElem(tabSimb* tabela, char* nome, char tipo);
 char inTab(tabSimb tabela, char* nome);
 char getElem(tabSimb tabela, char* nome, elemTab** endereco);
-char multContador(tabSimb tabela, char* nome);
+char loopContador(tabSimb tabela, char* nome);
 char naoUsado(tabSimb tabela);
 void printTab(tabSimb tabela);
 
