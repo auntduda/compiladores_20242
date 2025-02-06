@@ -6,6 +6,8 @@
 // /* Kenneth C. Louden                                */
 // /****************************************************/
 
+// teste de commit - duda
+
 // #include "globals.h"
 #include "sintatico.tab.h"
 #include "code.h"
