@@ -19,106 +19,15 @@ const char *reservedWords[] = { "do", "end", "if", "else", "fi", "in",
 		"integer", "let", "read", "skip", "then", "while", "write" };
 const int numReservedWords = sizeof(reservedWords) / sizeof(reservedWords[0]);
 
-void extrairParametros(const char *parametros, int *r, int *s, int *t, int *d) {
-	char parametroReal[50];  // Buffer para armazenar a string limpa
-	int i = 0, j = 0;
-
-	while (parametros[i] != ':') {
-		i++;
-	}
-
-	// Ignorar caracteres iniciais ate encontrar o primeiro digito
-	while (parametros[i] && !isdigit(parametros[i])) {
-		i++;
-	}
-
-	printf("valor i %d\n", i);
-
-	// Copiar a parte relevante para o novo buffer
-	while (parametros[i]) {
-		parametroReal[j++] = parametros[i++];
-	}
-	parametroReal[j] = '\0';  // Finaliza a string
-
-	// Determinar o formato e extrair os parametros
-	if (strchr(parametroReal, '(') != NULL) {  // Formato RM: r,d(s)
-		sscanf(parametroReal, "%d,%d(%d)", r, d, s);
-		*t = 0;  // t nao eh utilizado no formato RM
-	} else {  // Formato RO: r,s,t
-		sscanf(parametroReal, "%d,%d,%d", r, s, t);
-		*d = 0;  // d nao eh utilizado no formato RO
-	}
+void extrairParametros(char *parametros, int *r, int *s, int *t, int *d) {
+    if (strchr(parametros, '(') != NULL) {
+        sscanf(parametros, "%d,%d(%d)", r, d, s);
+        *t = 0;
+    } else {
+        sscanf(parametros, "%d,%d,%d", r, s, t);
+        *d = 0;
+    }
 }
-
-void computeRegValue(char *instrucao, char *parametros, int *necessaria) {
-	int r, s, t, d;
-	extrairParametros(parametros, &r, &s, &t, &d);
-
-	printf("Parametros r,s,t,d: %d, %d, %d, %d\n", r, s, t, d);
-
-	switch (instrucao[0]) {
-	case 'I':  // IN
-		reg[r] = 10;  // Simulacao: valor fixo para teste
-		break;
-	case 'O':  // OUT
-		printf("Reg[%d]: %d\n", r, reg[r]);
-		break;
-	case 'A':  // ADD
-		reg[r] = reg[s] + reg[t];
-		break;
-	case 'S':  // SUB
-		switch (instrucao[2]) {
-		case 'U':
-			reg[r] = reg[s] - reg[t];
-			break;
-		case 'T':
-			dMem[d + reg[s]] = reg[r];
-			break;
-		}
-
-		break;
-	case 'M':  // MUL
-		reg[r] = reg[s] * reg[t];
-		break;
-	case 'D':  // DIV
-		reg[r] = (reg[t] != 0) ? (reg[s] / reg[t]) : 0;
-		break;
-	case 'L':  // LD, LDA ou LDC
-		printf("instrucao entrada: %s\n", instrucao);
-		if (instrucao[2] == 'C') {
-			reg[r] = d;
-
-		} else if (instrucao[2] == 'A') {
-			int novoValor = d + reg[s];
-			if (reg[r] != novoValor) {
-				printf("LDA necessaria\n");
-				reg[r] = novoValor;
-				*necessaria = 1;
-			} else {
-				printf("LDA desnecessária\n");
-				*necessaria = 0;
-			}
-
-		} else {
-			reg[r] = dMem[d + reg[s]];
-		}
-
-		break;
-	case 'J':  // JLE, JGE, etc.
-		if ((instrucao[1] == 'L' && instrucao[2] == 'E' && reg[r] <= 0) || // JLE     
-				(instrucao[1] == 'G' && instrucao[2] == 'E' && reg[r] >= 0) || // JGE     
-				(instrucao[1] == 'G' && instrucao[2] == 'T' && reg[r] > 0) || // JGT     
-				(instrucao[1] == 'E' && reg[r] == 0) ||  	// JEQ          
-				(instrucao[1] == 'N' && reg[r] != 0)) {         // JNE          
-			reg[PC_REG] = d + reg[s]; // Ajusta o contador de programa                
-		}
-		break;
-	default:
-		printf("Instrucao desconhecida: %s\n", instrucao);
-		break;
-	}
-}
-
 int isVariable(const char *word) {
 	if (!isalpha(word[0]))
 		return 0;
@@ -184,13 +93,12 @@ int expressionProcessing(char *exp, tabSimb tabela) {
 
 	extractVariables(exp, variaveis, &tamanho);
 
-	printf("Variaveis encontradas Expressão:\n");
+	
 	for (int i = 0; i < tamanho; i++) {
-		printf("%s\n", variaveis[i]);
-		/* Nesse momento temos que somar 10 na contagem da variável na tabela de símbolos */
+		/* Nesse momento temos que somar 10 na contagem da vari��vel na tabela de s��mbolos */
 		if (loopContador(tabela, variaveis[i]) == 0) {
 			printf(
-					"ERRO: Nao foi declarada uma variavel chamada na expressão: %s.\n",
+					"ERRO: Nao foi declarada uma variavel chamada na expressao: %s.\n",
 					variaveis[i]);
 		}
 		free(variaveis[i]);
@@ -212,10 +120,8 @@ int commandsProcessing(char *commands, tabSimb tabela) {
 
 	extractVariables(commands, variaveis, &tamanho);
 
-	printf("Variaveis encontradas Comandos:\n");
 	for (int i = 0; i < tamanho; i++) {
-		printf("%s\n", variaveis[i]);
-		/* Nesse momento temos que somar 10 na contagem da variável na tabela de símbolos */
+		/* Nesse momento temos que somar 10 na contagem da vari��vel na tabela de s��mbolos */
 		if (loopContador(tabela, variaveis[i]) == 0) {
 			printf(
 					"ERRO: Nao foi declarada uma variavel chamada nos comandos do loop: %s.\n",
@@ -224,69 +130,12 @@ int commandsProcessing(char *commands, tabSimb tabela) {
 		free(variaveis[i]);
 		achou = 1;
 	}
-	printf("=================================\n");
 	if (achou) {
 		return 1;
 	}
 
 	return 0;
 
-}
-
-char** capturar_parametros(const char *instrucao) {
-	int estado = 0;
-	char primeiro_numero[10] = { 0 };
-	char segundo_numero[10] = { 0 };
-	char numero_parenteses[10] = { 0 };
-	int indice1 = 0, indice2 = 0, indice3 = 0;
-	int i = 0;
-
-	// Percorre a string caractere por caractere
-	while (instrucao[i] != '\0') {
-		char c = instrucao[i];
-
-		switch (estado) {
-		case 0:  // Captura o primeiro numero ate a virgula
-			if (c == ',') {
-				estado = 1;  // Passa para o proximo numero
-			} else {
-				primeiro_numero[indice1++] = c;
-			}
-			break;
-
-		case 1:  // Captura o segundo numero ate o parentese
-			if (c == '(') {
-				estado = 2;  // Passa para o numero dentro do parentese
-			} else {
-				segundo_numero[indice2++] = c;
-			}
-			break;
-
-		case 2:  // Captura o numero dentro do parentese
-			if (c == ')') {
-				estado = 3;  // Finaliza a captura
-			} else {
-				numero_parenteses[indice3++] = c;
-			}
-			break;
-		}
-
-		i++;  // Avanca para o proximo caractere
-	}
-	// Alocando memoria para armazenar os ponteiros para as strings
-	char **parametros = (char**) malloc(3 * sizeof(char*));
-
-	// Alocando memoria para cada string individual e copiando os valores
-	parametros[0] = (char*) malloc(strlen(primeiro_numero) + 1);
-	strcpy(parametros[0], primeiro_numero);
-
-	parametros[1] = (char*) malloc(strlen(segundo_numero) + 1);
-	strcpy(parametros[1], segundo_numero);
-
-	parametros[2] = (char*) malloc(strlen(numero_parenteses) + 1);
-	strcpy(parametros[2], numero_parenteses);
-
-	return parametros;
 }
 
 int optimizeCode(char *arquivoTiny, tabSimb tabela) {
@@ -308,10 +157,9 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 	char linha[1024];
 
 	while (fgets(linha, sizeof(linha), arquivo) != NULL) {
-		/* Campos para minha máquina virtual de otimização */
-		int reg[5];
+		int reg[2] = {0,1}; /* Mapeamento de registradores a serem substituidos*/
 		int necessaria = 1;
-
+		int r, s, t, d = 0;
 		int i = 0;
 		char numero_linha[10];
 		char instrucao[10];
@@ -319,6 +167,8 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 		memset(numero_linha, 0, sizeof(numero_linha));
 		memset(instrucao, 0, sizeof(instrucao));
 		memset(parametros, 0, sizeof(parametros));
+		
+		
 
 		int estado = 0;  // Automato simples baseado em estados
 
@@ -360,108 +210,60 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 			}
 			i++;
 		}
-		// Exibe os resultados
-		printf("Linha: %s\n", numero_linha);
-		printf("Instrucao: %s\n", instrucao);
-		printf("Parametros: %s\n", parametros);
-		char **rds;
+		
+		extrairParametros(parametros, &r, &s, &t, &d);
+		
 
 		if (strcmp(instrucao, "LD") == 0 || strcmp(instrucao, "ST") == 0) {
-
-			rds = capturar_parametros(parametros);
-			printf("=========================================\n");
-			printf("r: %s\n", rds[0]);
-			printf("d: %s\n", rds[1]);
-			printf("s: %s\n", rds[2]);
-			printf("=========================================\n");
 			char novaInstrucao[100];
-			int casoLda = 0;
-
-			if (rds[0] == NULL || rds[1] == NULL || rds[2] == NULL) {
-				printf("Erro: rds contem valores nulos.\n");
-				return;
-			}
 
 			if (strcmp(instrucao, "ST") == 0) {
-				/* Caso Store */
-				// Vou guardar o valor de um registrador no outro		
-				/* Ao invés de escrever uma instrução de Store, vou escrever uma instrução de LDA, isso se os valores
-				 * já não forem iguais
-				 */
-				if (atoi(rds[1]) == 0 && atoi(rds[2]) == 5) {
+                /* Ao inves de escrever store vamos escrever lda*/
+				if (d == 0 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA 2,0(%d)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
 
-				} else if (atoi(rds[1]) == 1 && atoi(rds[2]) == 5) {
+				} else if (d == 1 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA 3,0(%d)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
 
-				} else if (atoi(rds[1]) == 2 && atoi(rds[2]) == 5) {
+				} else if (d == 2 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA 4,0(%d)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
 				} else {
 					strcpy(novaInstrucao, linha);
-					casoLda = 0;
 				}
 				/* Dessa forma sempre que fizermos um store estarei guardando no registrador respectivo */
 
 			} else {
-				/* Caso Load 
-				 * Então ao invés de escrever uma instrução de Load vou escrever uma instrução de LDA, isso se os valores
-				 * já não forem iguais
-				 * */
-				// No load o valor de um registrador passa a ser do outro isso, se já não for o mesmo
-				if (atoi(rds[1]) == 0 && atoi(rds[2]) == 5) {
+				/* Ao inves de escrever Load vou escrever LDA*/
+				if (d == 0 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA %d,0(2)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
+				    
 
-				} else if (atoi(rds[1]) == 1 && atoi(rds[2]) == 5) {
+				} else if (d == 1 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA %d,0(3)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
 
-				} else if (atoi(rds[1]) == 2 && atoi(rds[2]) == 5) {
+				} else if (d == 2 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA %d,0(4)\n",
-							atoi(numero_linha), atoi(rds[0]));
-					casoLda = 1;
+							atoi(numero_linha), r);
 
 				} else {
 					strcpy(novaInstrucao, linha);
-					casoLda = 0;
 				}
-				/* Dessa forma estamos carregando sempre o valor 
-				 * dos registradores de uso genérico
-				 * E vamos aumentar a performance com um maior uso de registradores conforme necessário
+				/* Todas as vezes que for utilizado o registrador 0 a partir de agora vamos trocar por registrador 
+				   que foi carregado pra ele
 				 */
 
 			}
-			if (casoLda) {
-				computeRegValue("LDA", novaInstrucao, &necessaria);
-			}else {
-				computeRegValue(instrucao, parametros, &necessaria);
-			}
-			
-			if (necessaria) {
-				fprintf(arquivoOtimizado, novaInstrucao);
-				printf("--------------------------------------------------\n");
-				printf("Nova instrução: %s", novaInstrucao);
-				printf("--------------------------------------------------\n");
-			}
 
+			fprintf(arquivoOtimizado, novaInstrucao);
 		} else {
-			/* Preciso avaliar o conteúdo dos registradores com base nas instruções para saber se a instrução 
-			 * LDA é necessária ou não
-			 */
-			/* O primeiro Store sou obrigado a executar */
-
-			computeRegValue(instrucao, parametros, &necessaria);
+			/* Caso não seja load e store não vou trocar por LDA*/
 
 			fprintf(arquivoOtimizado, linha);
-			printf("%s", linha);
 		}
 	}
 

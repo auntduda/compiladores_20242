@@ -4,7 +4,7 @@
 #include <stdarg.h>  // Para usar argumentos variaveis
 #include "../tabSimb.h"
 
-void extrairParametros(const char *parametros, int *r, int *s, int *t, int *d);
+void extrairParametros(char *parametros, int *r, int *s, int *t, int *d);
 
 void computeRegValue(char* instrucao, char* parametros, int* necessaria);
 
