@@ -1,3 +1,6 @@
+-- esse arquivo aqui que usa pra gerar codigo objeto
+-- esse arquivo + tabSimb.c
+
 %{
 #include <stdio.h>
 #include <stdlib.h>
