@@ -99,7 +99,7 @@ extern int yylineno;
 program:
     LET
         declarations
-    IN                      {gen_code(DATA, (struct stack_t) {.intval = TabSimb->offset});}
+    IN                      {gen_code(DATA, (struct stack_t) {.intval = symTab->tamanho});}
         commands
     END {
         printf("Programa sintaticamente correto!\n");

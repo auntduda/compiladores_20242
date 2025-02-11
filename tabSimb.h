@@ -10,14 +10,13 @@ typedef struct elemTab {
     struct elemTab* prox; // Endereco do elemento seguinte da lista
 } elemTab;
 
-/* Inicializando a tabela vazia */
-static elemTab* TabSimb = (elemTab *) 0;
-
 /* Struct que corresponde a tabela de simbolos. */
 typedef struct tabSimb {
     elemTab* primeiro; /* endereco do primeiro elemento da tabela. */
     unsigned int tamanho; /* Quantidade de elementos da tabela. */
 } tabSimb;
+
+static tabSimb* symTab = (tabSimb *) 0;
 
 tabSimb criaTabela();
 char pushElem(tabSimb* tabela, char* nome, char tipo);
