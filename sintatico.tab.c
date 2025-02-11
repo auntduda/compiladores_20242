@@ -72,10 +72,73 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "ast/ast.h" /* Arvore Sintatica */
+#include "tabSimb.h" /* Tabela de simbolos */
+#include "ast/sm.h"
+#include "ast/gc.h"
 
+/* Lista de tipos de variaveis. */
+#define INT 0
+
+/* Declaracao da tabela de simbolos. */
+tabSimb tabela;
+
+/* Contador de erros. */
+unsigned int erros = 0;
+
+/* Rotina que instala um identificador na tabela de simbolos. */
+void install (char* nome_simb){
+    /* Chama a funcao que coloca um novo elemento na tabela. Se a funcao retornar 1, significa que um elemento com esse nome ja exisitia, o que ativara um erro. Se o retorno for 0, o elemento foi colocado na tabela de simbolos. */
+    if (pushElem(&tabela, nome_simb, INT)) {
+        erros++;
+        printf("ERRO: Ja existe uma variavel chamada %s.\n", nome_simb);
+    }
+    return;
+}
+
+/* Verifica se o simbolo existe na tabela. */
+void context_check(char* nome_simb){
+    if (inTab(tabela, nome_simb) == 0){
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+    }
+    return;
+}
+
+/* Verifica se o simbolo existe na tabela e, se existir, marca ele como usado. */
+void context_check_and_mark(char* nome_simb){
+    elemTab* endereco;
+    if (getElem(tabela, nome_simb, &endereco) == 0){
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+        return;
+    }
+    endereco -> usado = 1;
+    return;
+}
+
+/* Verifca se o simbolo existe na tabela e se ele foi usado. */
+void context_check_used(char* nome_simb){
+    elemTab* endereco;
+    if (getElem(tabela, nome_simb, &endereco) == 0){
+        erros++;
+        printf("ERRO: Nao foi declarada uma variavel chamada %s.\n", nome_simb);
+        return;
+    }
+    if (!(endereco -> usado)) {
+        erros++;
+        printf("ERRO: Nao foi atribuido valor para a variavel %s.\n", nome_simb);
+        }
+    return;
+}
+
+astNo* astTree;
+
+int yyerror(const char* s);
+extern int yylex();
 extern int yylineno;
 
-#line 79 "sintatico.tab.c"
+#line 142 "sintatico.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -120,8 +183,8 @@ enum yysymbol_kind_t
   YYSYMBOL_READ = 14,                      /* READ  */
   YYSYMBOL_WRITE = 15,                     /* WRITE  */
   YYSYMBOL_ASSGNOP = 16,                   /* ASSGNOP  */
-  YYSYMBOL_NUMBER = 17,                    /* NUMBER  */
-  YYSYMBOL_IDENTIFIER = 18,                /* IDENTIFIER  */
+  YYSYMBOL_IDENTIFIER = 17,                /* IDENTIFIER  */
+  YYSYMBOL_NUMBER = 18,                    /* NUMBER  */
   YYSYMBOL_19_ = 19,                       /* '<'  */
   YYSYMBOL_20_ = 20,                       /* '>'  */
   YYSYMBOL_21_ = 21,                       /* '='  */
@@ -131,18 +194,24 @@ enum yysymbol_kind_t
   YYSYMBOL_25_ = 25,                       /* '/'  */
   YYSYMBOL_26_ = 26,                       /* '^'  */
   YYSYMBOL_UMINUS = 27,                    /* UMINUS  */
-  YYSYMBOL_28_ = 28,                       /* '.'  */
-  YYSYMBOL_29_ = 29,                       /* ','  */
-  YYSYMBOL_30_ = 30,                       /* ';'  */
+  YYSYMBOL_IFX = 28,                       /* IFX  */
+  YYSYMBOL_29_ = 29,                       /* ';'  */
+  YYSYMBOL_30_ = 30,                       /* ','  */
   YYSYMBOL_31_ = 31,                       /* '('  */
   YYSYMBOL_32_ = 32,                       /* ')'  */
   YYSYMBOL_YYACCEPT = 33,                  /* $accept  */
   YYSYMBOL_program = 34,                   /* program  */
-  YYSYMBOL_declarations = 35,              /* declarations  */
-  YYSYMBOL_id_seq = 36,                    /* id_seq  */
-  YYSYMBOL_commands = 37,                  /* commands  */
-  YYSYMBOL_command = 38,                   /* command  */
-  YYSYMBOL_exp = 39                        /* exp  */
+  YYSYMBOL_35_1 = 35,                      /* $@1  */
+  YYSYMBOL_declarations = 36,              /* declarations  */
+  YYSYMBOL_id_seq = 37,                    /* id_seq  */
+  YYSYMBOL_commands = 38,                  /* commands  */
+  YYSYMBOL_command = 39,                   /* command  */
+  YYSYMBOL_40_2 = 40,                      /* $@2  */
+  YYSYMBOL_41_3 = 41,                      /* $@3  */
+  YYSYMBOL_42_4 = 42,                      /* $@4  */
+  YYSYMBOL_43_5 = 43,                      /* $@5  */
+  YYSYMBOL_44_6 = 44,                      /* $@6  */
+  YYSYMBOL_exp = 45                        /* exp  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -468,21 +537,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  5
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   114
+#define YYLAST   93
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  7
+#define YYNNTS  13
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  26
+#define YYNRULES  31
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  58
+#define YYNSTATES  62
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   274
+#define YYMAXUTOK   275
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -500,8 +569,8 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      31,    32,    24,    23,    29,    22,    28,    25,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    30,
+      31,    32,    24,    23,    30,    22,     2,    25,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    29,
       19,    21,    20,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -523,16 +592,17 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    27
+      15,    16,    17,    18,    27,    28
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    25,    25,    27,    28,    31,    32,    35,    36,    39,
-      40,    41,    42,    43,    44,    47,    48,    49,    50,    51,
-      52,    53,    54,    55,    56,    57,    58
+       0,   102,   102,   100,   124,   131,   150,   153,   171,   174,
+     189,   196,   203,   211,   219,   220,   221,   219,   229,   230,
+     229,   241,   251,   258,   267,   276,   285,   294,   303,   312,
+     321,   329
 };
 #endif
 
@@ -551,16 +621,16 @@ yysymbol_name (yysymbol_kind_t yysymbol)
   {
   "end of file", "error", "invalid token", "LET", "INTEGER", "IN", "SKIP",
   "IF", "THEN", "ELSE", "FI", "END", "WHILE", "DO", "READ", "WRITE",
-  "ASSGNOP", "NUMBER", "IDENTIFIER", "'<'", "'>'", "'='", "'-'", "'+'",
-  "'*'", "'/'", "'^'", "UMINUS", "'.'", "','", "';'", "'('", "')'",
-  "$accept", "program", "declarations", "id_seq", "commands", "command",
-  "exp", YY_NULLPTR
+  "ASSGNOP", "IDENTIFIER", "NUMBER", "'<'", "'>'", "'='", "'-'", "'+'",
+  "'*'", "'/'", "'^'", "UMINUS", "IFX", "';'", "','", "'('", "')'",
+  "$accept", "program", "$@1", "declarations", "id_seq", "commands",
+  "command", "$@2", "$@3", "$@4", "$@5", "$@6", "exp", YY_NULLPTR
   };
   return yy_sname[yysymbol];
 }
 #endif
 
-#define YYPACT_NINF (-28)
+#define YYPACT_NINF (-48)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -574,12 +644,13 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -2,     6,    16,   -28,    21,   -28,    24,   -28,    15,    62,
-     -28,   -28,   -28,    19,   -28,    19,    28,    19,    31,    18,
-     -28,   -28,    19,    19,     9,    32,   -28,    83,    19,   -28,
-     -28,    40,   -28,    19,    19,    19,    19,    19,    19,    19,
-      19,   -28,    83,   -28,    -3,    88,    88,    88,    14,    14,
-      23,    23,    23,    72,   -28,   -28,    82,   -28
+      10,   -48,    22,    31,   -48,   -48,   -48,     9,   -48,    18,
+      27,   -48,   -48,   -48,    -8,   -48,   -48,    15,    -8,    24,
+      14,   -48,   -48,    -8,    -8,    62,    -8,   -48,    62,    -8,
+     -48,   -48,     5,    -8,    -8,    -8,    -8,    -8,    -8,    -8,
+      41,    62,    62,   -48,    67,    67,   -23,   -23,    26,    26,
+      26,   -48,    42,    63,   -48,    50,    39,   -48,   -48,   -48,
+      51,   -48
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -587,24 +658,27 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     3,     0,     5,     0,     1,     0,     7,     0,     0,
-       4,     6,     9,     0,     2,     0,     0,     0,     0,     0,
-      15,    16,     0,     0,     0,     0,    10,    11,     0,     8,
-      25,     0,     7,     0,     0,     0,     0,     0,     0,     0,
-       0,     7,    12,    26,     0,    17,    19,    18,    21,    20,
-      22,    23,    24,     0,     7,    14,     0,    13
+       0,     4,     0,     0,     1,     6,     2,     0,     8,     0,
+       0,     5,     7,    10,     0,     3,    18,     0,     0,     0,
+       0,    22,    21,     0,     0,    14,     0,    11,    12,     0,
+       9,    30,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,    19,    13,    31,    23,    24,    26,    25,    27,    28,
+      29,     8,     0,    15,     8,     0,     0,    16,    20,     8,
+       0,    17
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -28,   -28,   -28,   -28,   -27,   -28,   -15
+     -48,   -48,   -48,   -48,   -48,   -47,   -48,   -48,   -48,   -48,
+     -48,   -48,   -18
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,     4,     6,     9,    19,    24
+       0,     2,     8,     3,     7,    10,    20,    40,    55,    59,
+      26,    52,    25
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -612,62 +686,61 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      25,     1,    27,    12,    13,    44,    54,    30,    31,    15,
-       3,    16,    17,    42,    53,    18,     5,    32,    45,    46,
-      47,    48,    49,    50,    51,    52,     7,    56,    33,    34,
-      35,    36,    37,    38,    39,    40,    20,    21,    38,    39,
-      40,    22,     8,    10,    11,    41,    26,    28,    29,    40,
-      23,    33,    34,    35,    36,    37,    38,    39,    40,    33,
-      34,    35,    36,    37,    38,    39,    40,     0,    12,    13,
-       0,     0,    43,    14,    15,     0,    16,    17,    12,    13,
-      18,     0,     0,    55,    15,     0,    16,    17,    12,    13,
-      18,     0,    57,     0,    15,     0,    16,    17,     0,     0,
-      18,     0,    33,    34,    35,    36,    37,    38,    39,    40,
-      36,    37,    38,    39,    40
+      28,    37,    38,    39,    53,    31,    32,    56,    41,    21,
+      22,    42,    60,     1,    23,    44,    45,    46,    47,    48,
+      49,    50,     4,    24,    33,    34,     9,    35,    36,    37,
+      38,    39,    27,    13,    14,     5,     6,    43,    15,    16,
+      29,    17,    18,    30,    19,    13,    14,    11,    12,    51,
+      58,    16,    39,    17,    18,    54,    19,    13,    14,    57,
+       0,    61,     0,    16,     0,    17,    18,     0,    19,    13,
+      14,     0,     0,     0,     0,    16,     0,    17,    18,     0,
+      19,    33,    34,     0,    35,    36,    37,    38,    39,    35,
+      36,    37,    38,    39
 };
 
 static const yytype_int8 yycheck[] =
 {
-      15,     3,    17,     6,     7,    32,     9,    22,    23,    12,
-       4,    14,    15,    28,    41,    18,     0,     8,    33,    34,
-      35,    36,    37,    38,    39,    40,     5,    54,    19,    20,
-      21,    22,    23,    24,    25,    26,    17,    18,    24,    25,
-      26,    22,    18,    28,    29,    13,    18,    16,    30,    26,
-      31,    19,    20,    21,    22,    23,    24,    25,    26,    19,
-      20,    21,    22,    23,    24,    25,    26,    -1,     6,     7,
-      -1,    -1,    32,    11,    12,    -1,    14,    15,     6,     7,
-      18,    -1,    -1,    11,    12,    -1,    14,    15,     6,     7,
-      18,    -1,    10,    -1,    12,    -1,    14,    15,    -1,    -1,
-      18,    -1,    19,    20,    21,    22,    23,    24,    25,    26,
-      22,    23,    24,    25,    26
+      18,    24,    25,    26,    51,    23,    24,    54,    26,    17,
+      18,    29,    59,     3,    22,    33,    34,    35,    36,    37,
+      38,    39,     0,    31,    19,    20,    17,    22,    23,    24,
+      25,    26,    17,     6,     7,     4,     5,    32,    11,    12,
+      16,    14,    15,    29,    17,     6,     7,    29,    30,     8,
+      11,    12,    26,    14,    15,    13,    17,     6,     7,     9,
+      -1,    10,    -1,    12,    -1,    14,    15,    -1,    17,     6,
+       7,    -1,    -1,    -1,    -1,    12,    -1,    14,    15,    -1,
+      17,    19,    20,    -1,    22,    23,    24,    25,    26,    22,
+      23,    24,    25,    26
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,    34,     4,    35,     0,    36,     5,    18,    37,
-      28,    29,     6,     7,    11,    12,    14,    15,    18,    38,
-      17,    18,    22,    31,    39,    39,    18,    39,    16,    30,
-      39,    39,     8,    19,    20,    21,    22,    23,    24,    25,
-      26,    13,    39,    32,    37,    39,    39,    39,    39,    39,
-      39,    39,    39,    37,     9,    11,    37,    10
+       0,     3,    34,    36,     0,     4,     5,    37,    35,    17,
+      38,    29,    30,     6,     7,    11,    12,    14,    15,    17,
+      39,    17,    18,    22,    31,    45,    43,    17,    45,    16,
+      29,    45,    45,    19,    20,    22,    23,    24,    25,    26,
+      40,    45,    45,    32,    45,    45,    45,    45,    45,    45,
+      45,     8,    44,    38,    13,    41,    38,     9,    11,    42,
+      38,    10
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    33,    34,    35,    35,    36,    36,    37,    37,    38,
-      38,    38,    38,    38,    38,    39,    39,    39,    39,    39,
-      39,    39,    39,    39,    39,    39,    39
+       0,    33,    35,    34,    36,    36,    37,    37,    38,    38,
+      39,    39,    39,    39,    40,    41,    42,    39,    43,    44,
+      39,    45,    45,    45,    45,    45,    45,    45,    45,    45,
+      45,    45
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     5,     0,     4,     0,     3,     0,     3,     1,
-       2,     2,     3,     7,     5,     1,     1,     3,     3,     3,
-       3,     3,     3,     3,     3,     2,     3
+       0,     2,     0,     6,     0,     5,     0,     3,     0,     3,
+       1,     2,     2,     3,     0,     0,     0,    10,     0,     0,
+       7,     1,     1,     3,     3,     3,     3,     3,     3,     3,
+       2,     3
 };
 
 
@@ -1351,14 +1424,355 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2: /* program: LET declarations IN commands END  */
-#line 25 "sintatico.y"
-                                          { printf ("Programa sintaticamente correto!\n"); }
-#line 1358 "sintatico.tab.c"
+  case 2: /* $@1: %empty  */
+#line 102 "sintatico.y"
+                            {gen_code(DATA, (struct stack_t) {.intval = TabSimb->offset});}
+#line 1431 "sintatico.tab.c"
+    break;
+
+  case 3: /* program: LET declarations IN $@1 commands END  */
+#line 104 "sintatico.y"
+        {
+        printf("Programa sintaticamente correto!\n");
+        
+        gen_code(HALT, (struct stack_t) {.intval =  0}); 
+        fetch_execute_cycle();
+        clear_table(TabSimb); 
+        clear_label_list(lbs_list);
+        clear_yyval_list(str_list);
+        report_errors();
+        YYACCEPT;
+
+        /*
+        astTree = astCreateNo(PROGRAM_K, NULL, NULL, 0);
+        astNo* children[] = { $2, $4 };
+        astPutChild(astTree, children, 2);
+        */
+    }
+#line 1453 "sintatico.tab.c"
+    break;
+
+  case 4: /* declarations: %empty  */
+#line 124 "sintatico.y"
+           {
+        install("0");
+        
+        /*
+        $$ = NULL;
+        */
+    }
+#line 1465 "sintatico.tab.c"
+    break;
+
+  case 5: /* declarations: declarations INTEGER id_seq IDENTIFIER ';'  */
+#line 131 "sintatico.y"
+                                                 {
+        
+        install( (yyvsp[-1].id) ); /* Coloca IDENTIFIER na tabela de simbolos. */
+        
+        /*
+        // Create declarations node
+        struct astNo* decl = astCreateNo(DECLARATIONS_K, NULL, NULL, 0);
+
+        // Add last IDENTIFIER and id_seq on children
+        struct astNo* last_id = astCreateTerminal(VAR_K, $3, NULL, 0, yylineno);
+        astNo* children[] = { $2, last_id };
+        astPutChild(decl, children, 2);
+        
+        $$ = decl;
+        */
+    }
+#line 1486 "sintatico.tab.c"
+    break;
+
+  case 6: /* id_seq: %empty  */
+#line 150 "sintatico.y"
+           {
+        (yyval.ast_no) = NULL;
+    }
+#line 1494 "sintatico.tab.c"
+    break;
+
+  case 7: /* id_seq: id_seq IDENTIFIER ','  */
+#line 153 "sintatico.y"
+                            {
+        install( (yyvsp[-1].id) ); /* Coloca IDENTIFIER na tabela de simbolos. */
+        
+        /*
+        struct astNo* id_node = astCreateTerminal(VAR_K, $2, NULL, 0, yylineno);
+
+        if ($1) {
+            astPutSibling($1, &id_node, 1);
+            $$ = $1;
+        } else {
+            $$ = id_node;
+        }
+        */
+    }
+#line 1513 "sintatico.tab.c"
+    break;
+
+  case 8: /* commands: %empty  */
+#line 171 "sintatico.y"
+           {
+        (yyval.ast_no) = NULL;
+    }
+#line 1521 "sintatico.tab.c"
+    break;
+
+  case 9: /* commands: commands command ';'  */
+#line 174 "sintatico.y"
+                           {
+        (yyval.ast_no) = (yyvsp[-2].ast_no);
+        
+        /*
+        astPutSibling($1, &($2), 1);
+        */
+    }
+#line 1533 "sintatico.tab.c"
+    break;
+
+  case 10: /* command: SKIP  */
+#line 189 "sintatico.y"
+         {
+        (yyval.ast_no) = NULL;
+        
+        /*
+        $$ = astCreateNo(SKIP_K, NULL, NULL, 0);
+        */
+    }
+#line 1545 "sintatico.tab.c"
+    break;
+
+  case 11: /* command: READ IDENTIFIER  */
+#line 196 "sintatico.y"
+                      {
+        context_check_and_mark( (yyvsp[0].id) ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
+        
+        /*
+        $$ = astCreateNo(READ_K, $2, NULL, 0);
+        */
+    }
+#line 1557 "sintatico.tab.c"
+    break;
+
+  case 12: /* command: WRITE exp  */
+#line 203 "sintatico.y"
+                {
+        gen_code(WRITE_INT, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(WRITE_K, NULL, NULL, 0);
+        astPutChild($$, &($2), 1);
+        */
+    }
+#line 1570 "sintatico.tab.c"
+    break;
+
+  case 13: /* command: IDENTIFIER ASSGNOP exp  */
+#line 211 "sintatico.y"
+                             {
+        context_check_and_mark((yyvsp[-2].id)); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
+        
+        /*
+        $$ = astCreateNo(ASSIGN_K, $1, NULL, 0);
+        astPutChild($$, &($3), 1);
+        */
+    }
+#line 1583 "sintatico.tab.c"
+    break;
+
+  case 14: /* $@2: %empty  */
+#line 219 "sintatico.y"
+                                    {(yyvsp[-1].int) = (struct lbs *) create_label(); (yyvsp[-1].int)->for_jmp_false = reserve_loc();}
+#line 1589 "sintatico.tab.c"
+    break;
+
+  case 15: /* $@3: %empty  */
+#line 220 "sintatico.y"
+                                    {(yyvsp[-4].int)->for_goto = reserve_loc();}
+#line 1595 "sintatico.tab.c"
+    break;
+
+  case 16: /* $@4: %empty  */
+#line 221 "sintatico.y"
+                                    {back_patch((yyvsp[-6].int)->for_jmp_false, JMP_FALSE, (struct stack_t) {.intval = gen_label()});}
+#line 1601 "sintatico.tab.c"
+    break;
+
+  case 17: /* command: IF exp $@2 THEN commands $@3 ELSE $@4 commands FI  */
+#line 223 "sintatico.y"
+                                    {back_patch((yyvsp[-9].int)->for_goto, GOTO, (struct stack_t) {.intval = gen_label()});}
+#line 1607 "sintatico.tab.c"
+    break;
+
+  case 18: /* $@5: %empty  */
+#line 229 "sintatico.y"
+                                    {(yyvsp[0].int) = (struct lbs *) create_label(); (yyvsp[0].int)->for_goto = gen_label();}
+#line 1613 "sintatico.tab.c"
+    break;
+
+  case 19: /* $@6: %empty  */
+#line 230 "sintatico.y"
+                                    {(yyvsp[-2].int)->for_jmp_false = reserve_loc();}
+#line 1619 "sintatico.tab.c"
+    break;
+
+  case 20: /* command: WHILE $@5 exp $@6 DO commands END  */
+#line 233 "sintatico.y"
+                                    {gen_code(GOTO, (struct stack_t) {.intval = (yyvsp[-6].int)->for_goto}); 
+                                            back_patch((yyvsp[-6].int)->for_jmp_false, JMP_FALSE, (struct stack_t) {.intval = gen_label()});}
+#line 1626 "sintatico.tab.c"
+    break;
+
+  case 21: /* exp: NUMBER  */
+#line 241 "sintatico.y"
+           {
+        gen_code(LD_INT, (struct stack_t){.intval = (yyvsp[0].intval), .type = INTVAL});
+        
+        /*
+        char buffer[12];
+        sprintf(buffer, "%d", $1);
+        char* num_str = strdup(buffer);
+        $$ = astCreateTerminal(NUM_K, num_str, NULL, 0, yylineno);
+        */
+    }
+#line 1641 "sintatico.tab.c"
+    break;
+
+  case 22: /* exp: IDENTIFIER  */
+#line 251 "sintatico.y"
+                 {
+        context_check_used((yyvsp[0].id)); /* Verifica se IDENTIFIER esta na tabela de simbolos e se teve atribuicao. */
+        
+        /*
+        $$ = astCreateTerminal(VAR_K, $1, NULL, 0, yylineno);
+        */
+    }
+#line 1653 "sintatico.tab.c"
+    break;
+
+  case 23: /* exp: exp '<' exp  */
+#line 258 "sintatico.y"
+                  {
+        gen_code(LT, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(LESS_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1667 "sintatico.tab.c"
+    break;
+
+  case 24: /* exp: exp '>' exp  */
+#line 267 "sintatico.y"
+                  {
+        gen_code(GT, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(GREATER_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1681 "sintatico.tab.c"
+    break;
+
+  case 25: /* exp: exp '+' exp  */
+#line 276 "sintatico.y"
+                  {
+        gen_code(ADD, (struct stack_t) {.intval = 0});
+        
+        /*
+        $$ = astCreateNo(PLUS_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1695 "sintatico.tab.c"
+    break;
+
+  case 26: /* exp: exp '-' exp  */
+#line 285 "sintatico.y"
+                  {
+        gen_code(SUB, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(MINUS_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1709 "sintatico.tab.c"
+    break;
+
+  case 27: /* exp: exp '*' exp  */
+#line 294 "sintatico.y"
+                  {
+        gen_code(MULT, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(MULT_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1723 "sintatico.tab.c"
+    break;
+
+  case 28: /* exp: exp '/' exp  */
+#line 303 "sintatico.y"
+                  {
+        gen_code(DIV, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(DIV_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1737 "sintatico.tab.c"
+    break;
+
+  case 29: /* exp: exp '^' exp  */
+#line 312 "sintatico.y"
+                  {
+        gen_code(PWR, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(EXP_K, NULL, NULL, 0);
+        astNo* children[] = { $1, $3 };
+        astPutChild($$, children, 2);
+        */
+    }
+#line 1751 "sintatico.tab.c"
+    break;
+
+  case 30: /* exp: '-' exp  */
+#line 321 "sintatico.y"
+                           {
+        gen_code(NEG, (struct stack_t) {.intval = 0});
+
+        /*
+        $$ = astCreateNo(UMINUS_K, NULL, NULL, 0);
+        astPutChild($$, &($2), 1);
+        */
+    }
+#line 1764 "sintatico.tab.c"
+    break;
+
+  case 31: /* exp: '(' exp ')'  */
+#line 329 "sintatico.y"
+                  {
+        (yyval.ast_no) = (yyvsp[-1].ast_no);
+    }
+#line 1772 "sintatico.tab.c"
     break;
 
 
-#line 1362 "sintatico.tab.c"
+#line 1776 "sintatico.tab.c"
 
       default: break;
     }
@@ -1582,19 +1996,41 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 61 "sintatico.y"
+#line 334 "sintatico.y"
 
 
 int main(int argc, char *argv[]) {
+    tabela = criaTabela(); /* Criacao da tabela de simbolos */
     extern FILE *yyin;
     ++argv; --argc;
     yyin = fopen(argv[0], "r");
     //yydebug = 1;
     printf("Analisando arquivo '%s'...\n", argv[0]);
     yyparse();
-    return 0;
+
+    if (erros > 0) printf("Compilacao concluida com erros.\n");
+
+    else {
+        /* Imprime as variaveis da tabela */
+        printf("\n");
+        printTab(tabela);
+        printf("\n");
+
+        /* Imprime as variaveis que nao foram usadas. */
+        naoUsado(tabela);
+        printf("\n");
+
+        if(astTree){
+            printf("Arvore Sintatica: \n");
+            astPrint(astTree);
+            astDeepFree(astTree);
+        }
+        
+        return 0;
+    }
 }
 
-yyerror(char* s) {
+int yyerror(const char* s) {
 	fprintf(stderr, "Erro encontrado na analise sintatica\n  Linha do erro: %d\n  Descricao do erro: %s\n", yylineno, s);
+        return 0;
 }

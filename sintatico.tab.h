@@ -68,16 +68,31 @@ extern int yydebug;
     READ = 269,                    /* READ  */
     WRITE = 270,                   /* WRITE  */
     ASSGNOP = 271,                 /* ASSGNOP  */
-    NUMBER = 272,                  /* NUMBER  */
-    IDENTIFIER = 273,              /* IDENTIFIER  */
-    UMINUS = 274                   /* UMINUS  */
+    IDENTIFIER = 272,              /* IDENTIFIER  */
+    NUMBER = 273,                  /* NUMBER  */
+    UMINUS = 274,                  /* UMINUS  */
+    IFX = 275                      /* IFX  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 72 "sintatico.y"
+
+    struct astNo* ast_no;
+    
+    int intval;     
+    float floatval;  
+    char* id;       
+    struct lbs* lbls;
+
+#line 93 "sintatico.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
