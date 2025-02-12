@@ -18,7 +18,7 @@ SYM_HDR = tabSimb.h
 BISON_C = sintatico.tab.c
 BISON_H = sintatico.tab.h
 LEX_C = lex.yy.c
-OBJ = $(BISON_C) $(LEX_C) $(SYM_SRC) $(AST_SRC)
+OBJ = $(BISON_C) $(LEX_C)
 
 # Arquivos de teste
 TEST_FILES = teste3.simple
