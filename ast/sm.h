@@ -18,7 +18,7 @@
 enum code_ops { HALT, STORE, JMP_FALSE, GOTO,
                 DATA, LD_INT, LD_FLOAT, LD_VAR,
                 READ_INT, READ_FLOAT, WRITE_INT, WRITE_FLOAT,
-                LT, EQ, GT, ADD, SUB, MULT, DIV, PWR, NEG};
+                LT, EQ, GT, ADD, SUB, MULT, DIV, PWR, NEG}; //4
 
 // Representacao externa das operacoes
 static char* op_name[] = { "halt", "store", "jmp_false", "goto",
@@ -33,20 +33,20 @@ enum type {
 
 // Tipos de dado da pilha
 static struct stack_t {
-    union {
+    union { //4
         int intval;
         float floatval;
     };
-    enum type type;
+    enum type type; //8
 } stack_t;
 
 struct instruction {
-    enum code_ops op;
-    struct stack_t arg;
+    enum code_ops op; //4 bytes
+    struct stack_t arg; //
 };
 
-static struct instruction code[999]; // Armazena programa (read only)
-static struct stack_t stack[999];     // Armazena dados
+static struct instruction code[99]; // Armazena programa (read only)
+static struct stack_t stack[99];     // Armazena dados
 
 static struct instruction ir;        // Registrador de instrucao (Instruction Register)
 static int pc = 0;                   // Registrador de endereço de programa (Program Counter)

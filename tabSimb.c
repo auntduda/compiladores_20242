@@ -12,6 +12,8 @@ elemTab* inSimb(char* sym)
     ptr->offset = data_location();
     ptr->prox = (struct elemTab *) symTab;
     symTab = ptr;
+
+    printf("inSimb\n"); printf("%ud\n", symTab);
     return ptr;
 }
 

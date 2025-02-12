@@ -9,10 +9,6 @@
 /* Lista de tipos de variaveis. */
 #define INT 0
 
-/* Declaracao da tabela de simbolos. 
-tabSimb tabela;
-*/
-
 /* Contador de erros. */
 unsigned int erros = 0;
 
@@ -72,23 +68,26 @@ void clear_yyval_list(str* ptr) {
 /* Rotina que instala um identificador na tabela de simbolos. */
 void install (char* nome_simb){
     
-    printf("instalando: %s", nome_simb);
+    printf("instalando: %s\n", nome_simb);
 
-    elemTab* s;
+    symrec* s;
     s = getSimb(nome_simb);
+
     if (s == 0) s = inSimb(nome_simb);
     else {
         erros++;
         printf(YLW "Erro: variavel '%s' ja esta definida\n" RESET, nome_simb);
         report_errors();
     }
+
+    printf("aaaaaaaaaaa\n");
 }
 
 /* Verifica se o simbolo existe na tabela. */
 void context_check(enum code_ops operation, char* simb){
 
     printf("operacao no cc: %s", operation);
-    elemTab* identifier = getSimb(simb);
+    symrec* identifier = getSimb(simb);
     if (identifier == 0) {
         erros++;
         printf(YLW "Erro: variavel '%s' nao foi declarada\n" RESET, simb);
@@ -140,16 +139,16 @@ extern int yylineno;
 %%
 
 program:
-    LET
-        declarations
-    IN                      {gen_code(DATA, (struct stack_t) {.intval = symTab->offset});}
+    LET                     
+        declarations        
+    IN                      {printf("LET\n"); printf("%d\n", sym_table); gen_code(DATA, (struct stack_t) {.intval = sym_table->offset}); printf("LET\n"); }
         commands
     END {
         printf("Programa sintaticamente correto!\n");
         
         gen_code(HALT, (struct stack_t) {.intval =  0}); 
         fetch_execute_cycle();
-        clearTable(symTab); 
+        clearTable(sym_table); 
         clear_label_list(lbs_list);
         clear_yyval_list(str_list);
         report_errors();
@@ -161,7 +160,7 @@ declarations:
     %empty {
         install("0");
     }
-    | declarations INTEGER id_seq IDENTIFIER ';' {
+    | declarations INTEGER id_seq IDENTIFIER '.' {
         
         install( $4 ); /* Coloca IDENTIFIER na tabela de simbolos. */
     }

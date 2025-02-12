@@ -1,5 +1,5 @@
 let
-    integer n, result, i, n_usada1, n_usada2;
+    integer n, result, i, n_usada1, n_usada2.
 in
     read n;        
     /* read y; */         

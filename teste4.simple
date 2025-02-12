@@ -1,5 +1,5 @@
 let
-    integer x;
+    integer x.
 in 
     x:=10;
 end

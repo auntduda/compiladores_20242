@@ -1,17 +1,44 @@
-#ifndef TABSIMB_H
-#define TABSIMB_H
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 
-/* Struct que corresponde a um elemento da tabela de simbolos. */
-typedef struct elemTab {
-    char* nome; // Nome do simbolo
-    int offset; // posicao do elemento na tabela
-    struct elemTab* prox; // Endereco do elemento seguinte da lista
-} elemTab;
+#include <stdlib.h>
+#include <string.h>
+#include "ast/gc.h"
 
-static elemTab* symTab = (elemTab *) 0;
+typedef struct symrec {
+    char* name; // nome do simbolo
+    int offset; // deslocamento dos dados
+    struct symrec* next; // ponteiro para o proximo
+} symrec;
 
-elemTab* inSimb(char* sym);
-elemTab* getSimb(char* sym);
-void clearTable (elemTab* ptr);
+// Inicializa a lista vazia
+static symrec* sym_table = (symrec *) 0;
 
-#endif
+// Adiciona um identificador a lista
+static inline symrec* inSimb(char* sym_name) {
+    symrec* ptr = (symrec *) malloc (sizeof(symrec));
+    ptr->name = (char *) malloc(strlen(sym_name) + 1);
+    strcpy(ptr->name, sym_name);
+    ptr->offset = data_location();
+    ptr->next = (struct symrec *) sym_table;
+    sym_table = ptr;
+    return ptr;
+}
+
+// Retorna um ponteiro para o simbolo com nome dado
+static inline symrec* getSimb(char* sym_name) {
+    for (symrec* ptr = sym_table; ptr != (symrec *) 0; ptr = (symrec *) ptr->next)
+        if (strcmp(ptr->name, sym_name) == 0) return ptr;
+    return 0;
+}
+
+// Esvazia a lista
+static inline void clearTable(symrec* ptr) {
+    if (ptr == NULL) return;
+
+    clearTable(ptr->next);
+    free(ptr->name);
+    free(ptr);
+}
+
+#endif // SYMBOL_TABLE_H

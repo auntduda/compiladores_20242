@@ -1,5 +1,5 @@
 let
-  integer x, y, z;
+  integer x, y, z.
 in
   x := 10;
   y := 20;
