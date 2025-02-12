@@ -42,12 +42,12 @@ static int top = 0;                  // Registrador de topo da pilha (Top Regist
 
 static inline void fetch_execute_cycle() { 
     
-    FILE* object_code = fopen("out/object.ogui", "w+");
-
+    FILE* object_code = fopen("out/objeto.o", "w+");
+    
     do {
         // Carrega
         ir = code[pc++];
-
+        
         // Escreve com o tipo correto no arquivo
         fprintf(object_code, "%2d: %-12s%d\n", pc - 1, op_name[ir.op], ir.arg);
 

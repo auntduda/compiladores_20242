@@ -4,6 +4,9 @@ LEX = flex
 BISON = bison
 CFLAGS = -Wall -g
 TARGET = a.out
+MKDIR_P ?= mkdir -p
+BUILD_DIR ?= build
+OUT_DIR ?= out
 
 # Arquivos de entrada
 LEX_FILE = lexico.l
@@ -21,7 +24,7 @@ LEX_C = lex.yy.c
 OBJ = $(BISON_C) $(LEX_C)
 
 # Arquivos de teste
-TEST_FILES = teste3.simple
+TEST_FILES = teste.simple
 
 # Regra padrao
 all: $(TARGET)
@@ -29,6 +32,7 @@ all: $(TARGET)
 # Regra para gerar o arquivo de saida
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
+	$(MKDIR_P) $(BUILD_DIR) $(OUT_DIR)
 
 # Regra para o Bison
 $(BISON_C) $(BISON_H): $(BISON_FILE)

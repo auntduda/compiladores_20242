@@ -148,6 +148,7 @@ program:
         clear_yyval_list(str_list);
         report_errors();
         YYACCEPT;
+        printf("depois do halt\n");
     }
 ;
 
