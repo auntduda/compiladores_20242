@@ -21,6 +21,8 @@ static inline int reserve_loc() { return code_offset++; }
 static inline int gen_label() { return code_offset; }
 
 static inline void gen_code(enum code_ops operation, struct stack_t arg) {
+    printf("operacao: %s", operation);
+    
     code[code_offset].op = operation;
     code[code_offset++].arg = arg;
 }

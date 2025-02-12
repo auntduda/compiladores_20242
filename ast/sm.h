@@ -353,10 +353,10 @@ static inline void fetch_execute_cycle() {
                                     case INTVAL:
                                         switch (stack[top].type) {
                                             case INTVAL:
-                                                stack[top-1].intval = pow(stack[top-1].intval, stack[top].intval);
+                                                //stack[top-1].intval = pow(stack[top-1].intval, stack[top].intval);
                                                 break;
                                             case FLOATVAL:
-                                                stack[top-1].floatval = pow((float)stack[top-1].intval, stack[top].floatval);
+                                                //stack[top-1].floatval = pow((float)stack[top-1].intval, stack[top].floatval);
                                                 stack[top-1].type = FLOATVAL;
                                                 break;
                                         }
@@ -364,10 +364,10 @@ static inline void fetch_execute_cycle() {
                                     case FLOATVAL:
                                         switch (stack[top].type) {
                                             case INTVAL:
-                                                stack[top-1].floatval = pow(stack[top-1].floatval, (float)stack[top].intval);
+                                                //stack[top-1].floatval = pow(stack[top-1].floatval, (float)stack[top].intval);
                                                 break;
                                             case FLOATVAL:
-                                                stack[top-1].floatval = pow(stack[top-1].floatval, stack[top].floatval);
+                                                //stack[top-1].floatval = pow(stack[top-1].floatval, stack[top].floatval);
                                                 break;
                                         }
                                     break;

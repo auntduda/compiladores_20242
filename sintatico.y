@@ -46,8 +46,8 @@ typedef struct str {
 str* str_list = NULL;
 
 // Aloca espaço para as labels
-lbs* create_label() {
-    lbs* ptr = (lbs *) malloc(sizeof(lbs));
+struct lbs* create_label() {
+    lbs* ptr = (struct lbs *) malloc(sizeof(struct lbs));
     ptr->next = lbs_list;
     lbs_list = ptr;
     
@@ -72,6 +72,8 @@ void clear_yyval_list(str* ptr) {
 /* Rotina que instala um identificador na tabela de simbolos. */
 void install (char* nome_simb){
     
+    printf("instalando: %s", nome_simb);
+
     elemTab* s;
     s = getSimb(nome_simb);
     if (s == 0) s = inSimb(nome_simb);
@@ -85,6 +87,7 @@ void install (char* nome_simb){
 /* Verifica se o simbolo existe na tabela. */
 void context_check(enum code_ops operation, char* simb){
 
+    printf("operacao no cc: %s", operation);
     elemTab* identifier = getSimb(simb);
     if (identifier == 0) {
         erros++;
@@ -107,10 +110,22 @@ extern int yylineno;
     struct lbs* lbls;
 }
 
-%type <ast_no> program declarations id_seq commands command exp
+
+%define parse.error detailed
 
 %start program
-%token <int> LET INTEGER IN SKIP IF THEN ELSE FI END WHILE DO READ WRITE ASSGNOP
+%token <id> ASSGNOP
+%token DO
+%token ELSE
+%token END
+%token <lbls> IF WHILE FI
+%token IN 
+%token INTEGER 
+%token LET
+%token READ
+%token SKIP
+%token THEN
+%token WRITE
 %token <id> IDENTIFIER
 %token <intval> NUMBER
 %left '<' '>' '='
@@ -121,7 +136,6 @@ extern int yylineno;
 
 %nonassoc IFX
 %nonassoc ELSE
-%define parse.error detailed
 
 %%
 
@@ -195,7 +209,7 @@ command:
         /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
         context_check(STORE, $1);
     }
-    | IF exp                        {lbs* x; x = create_label(); x->for_jmp_false = reserve_loc();}
+    | IF exp                        {$1 = (struct lbs *) create_label(); $1->for_jmp_false = reserve_loc();}
         THEN commands               {$1->for_goto = reserve_loc();}
       ELSE                          {back_patch($1->for_jmp_false, JMP_FALSE, (struct stack_t) {.intval = gen_label()});}
         commands
