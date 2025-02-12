@@ -6,6 +6,7 @@
 
 elemTab* inSimb(char* sym)
 {
+    printf("insimb: %d - %d\n", sizeof(elemTab), symTab);
     elemTab* ptr = (elemTab *) malloc (sizeof(elemTab));
     ptr->nome = (char *) malloc(strlen(sym) + 1);
     strcpy(ptr->nome, sym);
@@ -29,4 +30,8 @@ void clearTable (elemTab* ptr)
     clearTable(ptr->prox);
     free(ptr->nome);
     free(ptr);
+}
+
+elemTab* getSymTab() {
+    return symTab;
 }

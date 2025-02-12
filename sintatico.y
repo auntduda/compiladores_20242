@@ -19,11 +19,11 @@ unsigned int erros = 0;
 // Relatorio de erros
 void report_errors() {
     if (!erros)
-        printf(GRN "Nenhum erro encontrado\n" RESET);
+        printf("Nenhum erro encontrado\n");
 
     else
     {
-        printf(RED "%d erro(s) encontrado(s)\n" RESET, erros);
+        printf("%d erro(s) encontrado(s)\n", erros);
         exit(1);
     }
 }
@@ -71,9 +71,6 @@ void clear_yyval_list(str* ptr) {
 
 /* Rotina que instala um identificador na tabela de simbolos. */
 void install (char* nome_simb){
-    
-    printf("instalando: %s", nome_simb);
-
     elemTab* s;
     s = getSimb(nome_simb);
     if (s == 0) s = inSimb(nome_simb);
@@ -86,15 +83,13 @@ void install (char* nome_simb){
 
 /* Verifica se o simbolo existe na tabela. */
 void context_check(enum code_ops operation, char* simb){
-
-    printf("operacao no cc: %s", operation);
     elemTab* identifier = getSimb(simb);
     if (identifier == 0) {
         erros++;
         printf(YLW "Erro: variavel '%s' nao foi declarada\n" RESET, simb);
         report_errors();
     }
-    else gen_code(operation, (struct stack_t) {.intval = identifier->offset});
+    else gen_code(operation, identifier->offset);
 }
 
 
@@ -104,8 +99,7 @@ extern int yylineno;
 %}
 
 %union {
-    int intval;     
-    float floatval;  
+    int intval;
     char* id;       
     struct lbs* lbls;
 }
@@ -142,12 +136,12 @@ extern int yylineno;
 program:
     LET
         declarations
-    IN                      {gen_code(DATA, (struct stack_t) {.intval = symTab->offset});}
+    IN                      {gen_code(DATA, symTab->offset);}
         commands
     END {
         printf("Programa sintaticamente correto!\n");
         
-        gen_code(HALT, (struct stack_t) {.intval =  0}); 
+        gen_code(HALT, 0); 
         fetch_execute_cycle();
         clearTable(symTab); 
         clear_label_list(lbs_list);
@@ -202,7 +196,7 @@ command:
         context_check( READ_INT, $2 ); /* Verifica se IDENTIFIER esta na tabela de simbolos e marca como usado. */
     }
     | WRITE exp {
-        gen_code(WRITE_INT, (struct stack_t) {.intval = 0});
+        gen_code(WRITE_INT, 0);
 
     }
     | IDENTIFIER ASSGNOP exp {
@@ -211,20 +205,20 @@ command:
     }
     | IF exp                        {$1 = (struct lbs *) create_label(); $1->for_jmp_false = reserve_loc();}
         THEN commands               {$1->for_goto = reserve_loc();}
-      ELSE                          {back_patch($1->for_jmp_false, JMP_FALSE, (struct stack_t) {.intval = gen_label()});}
+      ELSE                          {back_patch($1->for_jmp_false, JMP_FALSE, gen_label());}
         commands
-      FI                            {back_patch($1->for_goto, GOTO, (struct stack_t) {.intval = gen_label()});}
+      FI                            {back_patch($1->for_goto, GOTO, gen_label());}
 
     | WHILE                         {$1 = (lbs *) create_label(); $1->for_goto = gen_label();}
         exp                         {$1->for_jmp_false = reserve_loc();}
       DO
         commands
-      END                           {gen_code(GOTO, (struct stack_t) {.intval = $1->for_goto}); 
-                                            back_patch($1->for_jmp_false, JMP_FALSE, (struct stack_t) {.intval = gen_label()});}
+      END                           {gen_code(GOTO, $1->for_goto); 
+                                            back_patch($1->for_jmp_false, JMP_FALSE, gen_label());}
 ;
 exp:
     NUMBER {
-        gen_code(LD_INT, (struct stack_t){.intval = $1, .type = INTVAL});
+        gen_code(LD_INT, $1);
 
     }
     | IDENTIFIER {
@@ -232,35 +226,35 @@ exp:
         
     }
     | exp '<' exp {
-        gen_code(LT, (struct stack_t) {.intval = 0});
+        gen_code(LT, 0);
 
     }
     | exp '>' exp {
-        gen_code(GT, (struct stack_t) {.intval = 0});
+        gen_code(GT, 0);
 
     }
     | exp '+' exp {
-        gen_code(ADD, (struct stack_t) {.intval = 0});
+        gen_code(ADD, 0);
         
     }
     | exp '-' exp {
-        gen_code(SUB, (struct stack_t) {.intval = 0});
+        gen_code(SUB, 0);
 
     }
     | exp '*' exp {
-        gen_code(MULT, (struct stack_t) {.intval = 0});
+        gen_code(MULT, 0);
 
     }
     | exp '/' exp {
-        gen_code(DIV, (struct stack_t) {.intval = 0});
+        gen_code(DIV, 0);
 
     }
     | exp '^' exp {
-        gen_code(PWR, (struct stack_t) {.intval = 0});
+        gen_code(PWR, 0);
 
     }
     | '-' exp %prec UMINUS {
-        gen_code(NEG, (struct stack_t) {.intval = 0});
+        gen_code(NEG, 0);
 
     }
     | '(' exp ')' {
