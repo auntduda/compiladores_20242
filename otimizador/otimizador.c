@@ -142,7 +142,7 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
 	FILE *arquivo = fopen(arquivoTiny, "r");
 	/* Abrindo arquivo otimizado para escrita */
 	// Remove o arquivo antigo se existir
-	FILE *arquivoOtimizado = fopen("otimizador/FATORIALo.tm", "w");
+	FILE *arquivoOtimizado = fopen("otimizador/teste/SOMANo.tm", "w");
 
 	if (arquivoOtimizado == NULL) {
 		printf("Erro ao abrir o arquivo!\n");
@@ -221,7 +221,7 @@ int optimizeCode(char *arquivoTiny, tabSimb tabela) {
                 /* Ao inves de escrever store vamos escrever lda*/
 				if (d == 0 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA 2,0(%d)\n",
-							atoi(numero_linha), r);
+						atoi(numero_linha), r);
 
 				} else if (d == 1 && s == 5) {
 					sprintf(novaInstrucao, " %2d:    LDA 3,0(%d)\n",

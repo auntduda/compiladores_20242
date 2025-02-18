@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
          
         printf("Verificando otimizador\n");
         
-        char* arquivoTiny = "otimizador/FATORIAL.tm";
+        char* arquivoTiny = "otimizador/teste/SOMAN.tm";
         
         printf("%d\n", optimizeCode(arquivoTiny, tabela));
         
